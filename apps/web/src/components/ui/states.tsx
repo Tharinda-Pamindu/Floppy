@@ -2,7 +2,8 @@
 
 import { AlertTriangle, Lock, PauseCircle, SearchX, WifiOff } from "lucide-react";
 import Link from "next/link";
-import { type ReactNode, useEffect, useId, useState } from "react";
+import type { ReactNode } from "react";
+import { useLoadingOverlay } from "@/components/loading-overlay";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
@@ -12,48 +13,16 @@ export function Spinner({ className }: { className?: string }) {
 }
 
 /**
- * Quick loads show the small spinner. Once a load takes longer than `slowAfter`
- * ms, the animated Floppy mark takes over, so a long wait doesn't look stuck.
+ * A page or tab still loading its data. It keeps the space with a small
+ * spinner, and the full-screen logo overlay (LoadingOverlayProvider) comes
+ * forward if the wait lasts more than a moment.
  */
-export function PageLoader({ label = "Loading…", slowAfter = 800 }: { label?: string; slowAfter?: number }) {
-  const [slow, setSlow] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => setSlow(true), slowAfter);
-    return () => clearTimeout(timer);
-  }, [slowAfter]);
+export function PageLoader({ label = "Loading…" }: { label?: string }) {
+  useLoadingOverlay(label);
   return (
     <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 text-sm text-muted">
-      {slow ? <LogoLoader /> : <Spinner className="h-8 w-8" />}
+      <Spinner className="h-8 w-8" />
       <span>{label}</span>
-    </div>
-  );
-}
-
-/** The Floppy mark bobbing over soft brand-coloured ripples and a faded paper grid (styles in globals.css). */
-function LogoLoader() {
-  // The F is cut out with a mask; each loader needs its own mask id (a page can show several).
-  const maskId = `floppy-f-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  return (
-    <div className="floppy-loader relative grid h-40 w-40 place-items-center" role="status" aria-label="Loading">
-      <div aria-hidden className="paper-grid absolute inset-0 rounded-full [mask-image:radial-gradient(closest-side,#000,transparent)]" />
-      <span aria-hidden className="floppy-loader-ring" />
-      <span aria-hidden className="floppy-loader-ring [animation-delay:1s]" />
-      <span aria-hidden className="floppy-loader-ring [animation-delay:2s]" />
-      <div aria-hidden className="relative flex flex-col items-center gap-3">
-        <svg viewBox="-4 -4 108 128" className="floppy-loader-mark h-[60px] w-[52px]">
-          <defs>
-            <mask id={maskId}>
-              <rect x="-4" y="-4" width="108" height="128" fill="#fff" />
-              <path fill="#000" d="M23 126V66A17 17 0 0 1 40 49H80.5A1.5 1.5 0 0 1 81.6 51.5L71 64H40A10 10 0 0 0 30 74V77H58A8 8 0 0 1 58 93H40A10 10 0 0 0 30 103V126Z" />
-            </mask>
-          </defs>
-          <g fill="var(--brand)">
-            <path mask={`url(#${maskId})`} d="M25 0H61V26A13 13 0 0 0 74 39H100V82Q100 99 84 105L30 120H25A25 25 0 0 1 0 95V25A25 25 0 0 1 25 0Z" />
-            <path className="floppy-loader-fold" d="M66 1V23A12 12 0 0 0 78 35H100Z" />
-          </g>
-        </svg>
-        <span className="floppy-loader-shadow" />
-      </div>
     </div>
   );
 }
