@@ -15,6 +15,27 @@
       "when": 1791968471342,
       "tag": "0001_enable_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792004639920,
+      "tag": "0002_solid_robin_chapel",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792004653547,
+      "tag": "0003_task_numbers",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792004669879,
+      "tag": "0004_purple_venom",
+      "breakpoints": true
     }
   ]
 }

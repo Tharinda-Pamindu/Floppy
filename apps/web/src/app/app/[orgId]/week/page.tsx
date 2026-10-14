@@ -43,7 +43,7 @@ function MyWeek({ orgId }: { orgId: string }) {
         title={weekLabel(week)}
         description="One main thing to ship, why it matters, and how users will hear about it."
         actions={
-          <div className="flex items-center gap-1 rounded-full border-2 border-rule bg-surface p-1">
+          <div className="flex items-center gap-1 rounded-full border border-rule bg-surface p-1">
             <Button variant="ghost" size="icon-sm" aria-label="Previous week" onClick={() => go(addWeeks(week, -1))}><ChevronLeft className="h-4 w-4" /></Button>
             <Button variant="ghost" size="sm" onClick={() => go(current)} disabled={week === current}>This week</Button>
             <Button variant="ghost" size="icon-sm" aria-label="Next week" onClick={() => go(addWeeks(week, 1))} disabled={!nextAllowed}><ChevronRight className="h-4 w-4" /></Button>
@@ -76,7 +76,7 @@ function MyWeek({ orgId }: { orgId: string }) {
                 <MessagesSquare className="h-4 w-4 text-accent" /> Discussion
                 <span className="ml-auto text-xs font-normal text-muted">{plan.status === "draft" ? "Private until submitted" : "With your approvers"}</span>
               </button>
-              {showThread && <div className="border-t-2 border-rule-soft"><ThreadFor orgId={orgId} path={`/organizations/${orgId}/plans/${plan.id}/conversation`} compact /></div>}
+              {showThread && <div className="border-t border-rule-soft"><ThreadFor orgId={orgId} path={`/organizations/${orgId}/plans/${plan.id}/conversation`} compact /></div>}
             </div>
           </aside>
         </div>

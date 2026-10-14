@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output and caches
+dist/
+.next/
+out/
+coverage/
+.turbo/
+.vercel/
+*.tsbuildinfo
+.eslintcache
+
+# Secrets: every env file in any folder (.env, .env.local, .env.production…),
+# except the committed templates.
+.env
+.env.*
+!.env.example
+
+# Private keys and certificates
+*.pem
+*.key
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors and local tool settings (shared Claude settings in .claude/settings.json stay committed)
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.claude/settings.local.json
+

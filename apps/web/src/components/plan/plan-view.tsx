@@ -51,7 +51,7 @@ export function PlanView({ orgId, plan, onChange }: { orgId: string; plan: Plan;
   return (
     <div className="space-y-6">
       <div className="label-card overflow-hidden">
-        <div className="flex flex-wrap items-center gap-2 border-b-2 border-rule px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2 border-b border-rule px-4 py-3">
           <PlanStatusBadge status={plan.status} />
           <ShippedBadge shipped={plan.mainGoalShipped} />
           <span className="font-mono text-xs text-muted">{done}/{plan.tasks.length} tasks done</span>
@@ -61,13 +61,13 @@ export function PlanView({ orgId, plan, onChange }: { orgId: string; plan: Plan;
           </div>
         </div>
         <div className="px-4 py-3 text-sm text-ink-soft">{hint[plan.status]}</div>
-        {plan.outcomeNote && <div className="border-t-2 border-rule-soft px-4 py-3 text-sm"><strong>Outcome:</strong> {plan.outcomeNote}</div>}
+        {plan.outcomeNote && <div className="border-t border-rule-soft px-4 py-3 text-sm"><strong>Outcome:</strong> {plan.outcomeNote}</div>}
         <div className="h-2 bg-surface-2"><div className="h-full bg-accent transition-all" style={{ width: `${plan.tasks.length ? (done / plan.tasks.length) * 100 : 0}%` }} /></div>
       </div>
 
       {main && (
         <section className="label-card-flat p-4">
-          <div className="font-mono text-xs font-bold tracking-widest text-accent uppercase">Main · ship this</div>
+          <div className="text-xs font-semibold tracking-wider text-accent uppercase">Main · ship this</div>
           <TaskLine orgId={orgId} plan={plan} task={main} onTick={(isDone) => tick.mutate({ id: main.id, isDone })} big />
           {main.why && <p className="mt-2 pl-9 text-sm text-ink-soft"><strong>Why:</strong> {main.why}</p>}
         </section>
@@ -77,7 +77,7 @@ export function PlanView({ orgId, plan, onChange }: { orgId: string; plan: Plan;
         if (!list.length) return null;
         return (
           <section key={kind} className="label-card-flat p-4">
-            <div className="mb-2 font-mono text-xs font-bold tracking-widest text-ink-soft uppercase">{kind === "sub_goal" ? "Sub-goals" : "Go-to-market"}</div>
+            <div className="mb-2 text-xs font-semibold tracking-wider text-ink-soft uppercase">{kind === "sub_goal" ? "Sub-goals" : "Go-to-market"}</div>
             <ul className="space-y-1">
               {list.map((t) => <li key={t.id}><TaskLine orgId={orgId} plan={plan} task={t} onTick={(isDone) => tick.mutate({ id: t.id, isDone })} /></li>)}
             </ul>
@@ -90,7 +90,7 @@ export function PlanView({ orgId, plan, onChange }: { orgId: string; plan: Plan;
           <h3 className="mb-2 font-display font-bold">Review history</h3>
           <ol className="space-y-2">
             {plan.reviews.map((r) => (
-              <li key={r.id} className="flex gap-3 rounded-xl border-2 border-rule-soft bg-surface px-3 py-2.5 text-sm">
+              <li key={r.id} className="flex gap-3 rounded-xl border border-rule-soft bg-surface px-3 py-2.5 text-sm">
                 {r.action === "approved" ? <ThumbsUp className="mt-0.5 h-4 w-4 text-ok" /> : <MessageSquareText className="mt-0.5 h-4 w-4 text-warn" />}
                 <div>
                   <span className="font-semibold">{fullName(r.reviewer)}</span> {r.action === "approved" ? "approved" : "sent it back"} · <span className="font-mono text-xs text-muted">{formatDateTime(r.createdAt)}</span>
@@ -115,7 +115,7 @@ function TaskLine({ orgId, plan, task, onTick, big }: { orgId: string; plan: Pla
         aria-label={task.isDone ? "Mark not done" : "Mark done"}
         disabled={!can}
         onClick={() => onTick(!task.isDone)}
-        className={cn("mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border-2 border-rule transition-colors", task.isDone ? "bg-accent text-accent-ink" : "bg-surface", can ? "cursor-pointer hover:bg-accent-soft" : "cursor-default opacity-70")}
+        className={cn("mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border border-rule transition-colors", task.isDone ? "bg-accent text-accent-ink" : "bg-surface", can ? "cursor-pointer hover:bg-accent-soft" : "cursor-default opacity-70")}
       >
         {task.isDone && <Check className="h-3.5 w-3.5" />}
       </button>
@@ -157,7 +157,7 @@ function CloseWeek({ orgId, plan, onDone }: { orgId: string; plan: Plan; onDone:
           ].map(([value, label, Icon]) => {
             const I = Icon as typeof ThumbsUp;
             return (
-              <button key={String(value)} type="button" aria-pressed={shipped === value} onClick={() => setShipped(value as boolean)} className={cn("flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-3 text-sm font-semibold", shipped === value ? "border-rule bg-accent-soft" : "border-rule-soft")}>
+              <button key={String(value)} type="button" aria-pressed={shipped === value} onClick={() => setShipped(value as boolean)} className={cn("flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold", shipped === value ? "border-rule bg-accent-soft" : "border-rule-soft")}>
                 <I className="h-4 w-4" />{label as string}
               </button>
             );

@@ -18,16 +18,16 @@ function ClerkWithTheme({ children }: { children: ReactNode }) {
       appearance={{
         theme: isDark ? dark : undefined,
         variables: {
-          colorPrimary: isDark ? "#2dd4bf" : "#0f766e",
-          colorBackground: isDark ? "#151a21" : "#fffdf8",
-          colorForeground: isDark ? "#ede8dd" : "#1c1917",
-          colorPrimaryForeground: isDark ? "#062b27" : "#ffffff",
+          colorPrimary: isDark ? "#9ba1f5" : "#2e3192",
+          colorBackground: isDark ? "#15173a" : "#ffffff",
+          colorForeground: isDark ? "#f2f3ff" : "#15162b",
+          colorPrimaryForeground: isDark ? "#0e0f24" : "#ffffff",
           borderRadius: "12px",
-          fontFamily: "var(--font-instrument)",
+          fontFamily: "var(--font-dm-sans)",
         },
         elements: {
-          cardBox: "border-2 border-[var(--rule)] shadow-[4px_4px_0_0_var(--shadow-ink)] rounded-[14px]",
-          formButtonPrimary: "rounded-full font-semibold",
+          cardBox: "border border-[var(--rule)] shadow-[var(--shadow-pop)] rounded-xl",
+          formButtonPrimary: "rounded-full font-bold uppercase tracking-[0.08em] text-xs",
         },
       }}
       signInUrl="/sign-in"

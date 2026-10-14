@@ -32,9 +32,9 @@ function Chat({ orgId }: { orgId: string }) {
 
   return (
     <div className="label-card grid overflow-hidden md:grid-cols-[300px_1fr]">
-      <aside className={cn("border-rule md:border-r-2", selected && "hidden md:block")}>
-        <div className="flex items-center justify-between border-b-2 border-rule px-4 py-3">
-          <h1 className="font-display text-xl font-extrabold">Chat</h1>
+      <aside className={cn("border-rule md:border-r", selected && "hidden md:block")}>
+        <div className="flex items-center justify-between border-b border-rule px-4 py-3">
+          <h1 className="font-display text-xl font-bold">Chat</h1>
           <NewDm orgId={orgId} onOpen={(c) => open(c.id)} />
         </div>
         <nav className="max-h-[calc(100dvh-16rem)] overflow-y-auto p-2" aria-label="Conversations">
@@ -51,7 +51,7 @@ function Chat({ orgId }: { orgId: string }) {
       <section className={cn(!selected && "hidden md:block")}>
         {selected ? (
           <>
-            <div className="flex items-center gap-2 border-b-2 border-rule px-3 py-2.5">
+            <div className="flex items-center gap-2 border-b border-rule px-3 py-2.5">
               <Button variant="ghost" size="icon-sm" className="md:hidden" aria-label="Back to conversations" onClick={() => open(null)}><ArrowLeft className="h-4 w-4" /></Button>
               {selected.kind === "team" ? <Hash className="h-4 w-4 text-accent" /> : <Avatar person={selected.participants[0] ?? null} size={26} />}
               <h2 className="truncate font-display font-bold">{selected.title.replace(/^# /, "")}</h2>
@@ -69,7 +69,7 @@ function Chat({ orgId }: { orgId: string }) {
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-3">
-      <div className="px-2 py-1.5 font-mono text-[10px] font-bold tracking-widest text-muted uppercase">{title}</div>
+      <div className="px-2 py-1.5 text-[10px] font-semibold tracking-wider text-muted uppercase">{title}</div>
       <ul className="space-y-0.5">{children}</ul>
     </div>
   );
@@ -82,7 +82,7 @@ function Item({ c, active, onClick }: { c: Conversation; active: boolean; onClic
         {c.kind === "team" ? <Hash className="h-4 w-4 shrink-0 text-accent" /> : <Avatar person={c.participants[0] ?? null} size={24} />}
         <span className={cn("min-w-0 flex-1 truncate", c.unread > 0 && "font-bold")}>{c.title.replace(/^# /, "")}</span>
         {c.unread > 0 ? (
-          <span className="rounded-full bg-brand px-1.5 font-mono text-[10px] font-bold text-white">{c.unread}</span>
+          <span className="rounded-full bg-accent px-1.5 text-[10px] font-semibold text-accent-ink">{c.unread}</span>
         ) : (
           c.lastMessageAt && <span className="font-mono text-[10px] text-muted">{relativeTime(c.lastMessageAt)}</span>
         )}
@@ -111,7 +111,7 @@ function NewDm({ orgId, onOpen }: { orgId: string; onOpen: (c: Conversation) => 
   const people = (members.data ?? []).filter((m) => m.id !== me.data?.id && fullName(m).toLowerCase().includes(q.toLowerCase()));
   return (
     <Dialog open={open} onOpenChange={setOpen} title="New message" trigger={<Button size="icon-sm" variant="outline" aria-label="New direct message"><MessageSquarePlus className="h-4 w-4" /></Button>}>
-      <input aria-label="Search people" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search people…" className="mb-3 h-10 w-full rounded-xl border-2 border-rule-soft bg-surface px-3 text-sm focus:border-accent focus:outline-none" />
+      <input aria-label="Search people" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search people…" className="mb-3 h-10 w-full rounded-xl border border-rule-soft bg-surface px-3 text-sm focus:border-accent focus:outline-none" />
       <ul className="max-h-80 space-y-1 overflow-y-auto">
         {people.map((m) => (
           <li key={m.id}>

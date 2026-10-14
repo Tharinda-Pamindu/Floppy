@@ -13,7 +13,7 @@
  * verification code is 424242.
  */
 import { addWeeks, mondayOf, type OrgRole } from "@floppy/shared";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   aiUsageEvents,
   assignedTasks,
@@ -246,7 +246,17 @@ async function main() {
     ], { approver: "leila", shipped: tomShipped, note: tomShipped ? undefined : "Export still timing out on large accounts." });
   }
 
-  // Assigned tasks (one overdue, one due tomorrow, one pulled into a plan).
+  // Issue numbers (NORT-1, NORT-2…) come from the organization's counter, as in createTask.
+  const nextNumber = async (orgId: string) => {
+    const [row] = await deps.db
+      .update(organizations)
+      .set({ taskSeq: sql`${organizations.taskSeq} + 1` })
+      .where(eq(organizations.id, orgId))
+      .returning({ n: organizations.taskSeq });
+    return row!.n;
+  };
+
+  // Assigned tasks (one overdue, one due tomorrow, one in review, one pulled into a plan).
   const [refundTask] = await deps.db
     .insert(assignedTasks)
     .values({
@@ -259,6 +269,10 @@ async function main() {
       deadline: new Date(now.getTime() + 26 * 3_600_000),
       priority: "high",
       status: "in_progress",
+      number: await nextNumber(nw),
+      type: "bug",
+      storyPoints: 3,
+      labels: ["payments", "webhooks"],
     })
     .returning();
   await deps.db.insert(assignedTasks).values([
@@ -271,6 +285,25 @@ async function main() {
       deadline: daysAgo(1),
       priority: "normal",
       status: "todo",
+      number: await nextNumber(nw),
+      type: "task",
+      storyPoints: 1,
+      labels: ["support", "copy"],
+    },
+    {
+      organizationId: nw,
+      teamId: payments,
+      title: "Partial-refund ledger reconciliation report",
+      description: "Daily report that matches every partial refund to its ledger entry.",
+      assigneeId: users.marco.id,
+      assignedById: users.leila.id,
+      deadline: new Date(now.getTime() + 2 * 86_400_000),
+      priority: "normal",
+      status: "in_review",
+      number: await nextNumber(nw),
+      type: "story",
+      storyPoints: 5,
+      labels: ["payments", "reporting"],
     },
     {
       organizationId: nw,
@@ -282,6 +315,10 @@ async function main() {
       deadline: new Date(now.getTime() + 3 * 86_400_000),
       priority: "urgent",
       status: "todo",
+      number: await nextNumber(nw),
+      type: "story",
+      storyPoints: 8,
+      labels: ["growth"],
     },
   ]);
 
@@ -323,6 +360,10 @@ async function main() {
       assignedById: users.leila.id,
       deadline: new Date(now.getTime() + 5 * 86_400_000),
       priority: "low",
+      number: await nextNumber(nw),
+      type: "bug",
+      storyPoints: 2,
+      labels: ["triage"],
       githubRepoId: repoRow!.id,
       githubIssueNumber: issue.number,
       githubIssueUrl: issue.url,

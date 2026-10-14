@@ -83,10 +83,11 @@
 
 | Method | Path | Who / rule |
 | --- | --- | --- |
-| GET | `/tasks?scope=mine\|assigned_by_me\|team&teamId=&status=` | `team` is for leads (their teams) and managers |
-| POST | `/tasks` | Owner or admin (anyone) or team lead (members of a team they lead). Emails the assignee. |
+| GET | `/tasks?scope=mine\|assigned_by_me\|team&teamId=&status=&q=&assigneeId=&type=&priority=&label=&from=&to=` | `team` is for leads (their teams) and managers. `q` matches titles or a key (`NORT-42` or `42`). `from` and `to` (both, at most 62 days apart) bound the deadline, for the calendar. Up to 300 tasks. |
+| POST | `/tasks` | Owner or admin (anyone) or team lead (members of a team they lead). Emails the assignee. Optional `type` (`task`\|`bug`\|`story`), `storyPoints` (1–100) and `labels` (up to 5, stored lower-case). Takes the organization's next number; `key` shows it as e.g. `NORT-42`. |
 | GET | `/tasks/:taskId` | Assignee, assigner, lead of the task's team, managers (others → 404). Refreshes the GitHub state. |
-| PATCH | `/tasks/:taskId` | Details or reassignment: assigner, lead or manager. `status`: the assignee too (but not `cancelled`). |
+| PATCH | `/tasks/:taskId` | Details (including `type`, `storyPoints` and `labels`) or reassignment: assigner, lead or manager. `status` (`todo`, `in_progress`, `in_review`, `done`, `cancelled`): the assignee too (but not `cancelled`). Every change is recorded in the task's activity. |
+| GET | `/tasks/:taskId/activity` | The task's history, oldest first: `{field, from, to, actor, createdAt}`. Same visibility as the task (others → 404). |
 | POST | `/tasks/:taskId/pull-into-plan` | Assignee. `{weekStart, kind: sub_goal\|main}`. Creates the draft if needed. |
 | GET | `/tasks/:taskId/conversation` | The task's thread |
 

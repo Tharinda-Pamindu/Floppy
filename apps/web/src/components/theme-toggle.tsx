@@ -17,7 +17,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   return (
-    <div role="radiogroup" aria-label="Theme" className={cn("inline-flex rounded-full border-2 border-rule bg-surface p-0.5", className)}>
+    <div role="radiogroup" aria-label="Theme" className={cn("inline-flex rounded-full border border-rule bg-surface p-0.5", className)}>
       {options.map(({ value, label, Icon }) => {
         const active = mounted && theme === value;
         return (

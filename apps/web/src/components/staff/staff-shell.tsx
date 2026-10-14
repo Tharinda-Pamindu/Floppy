@@ -25,13 +25,13 @@ export function StaffShell({ me, children }: { me: MeResponse; children: ReactNo
   const active = (href: string, exact?: boolean) => (exact ? pathname === href : pathname.startsWith(href));
   return (
     <div className="min-h-dvh">
-      <div className="flex items-center justify-center gap-2 bg-ink px-4 py-1.5 text-center font-mono text-[11px] font-bold tracking-widest text-paper uppercase">
-        <ShieldAlert className="h-3.5 w-3.5 text-brand" /> Internal staff console · metadata only — plan, chat and page content is never shown here
+      <div className="flex items-center justify-center gap-2 bg-ink px-4 py-1.5 text-center text-[11px] font-semibold tracking-wider text-paper uppercase">
+        <ShieldAlert className="h-3.5 w-3.5 text-warn" /> Internal staff console · metadata only — plan, chat and page content is never shown here
       </div>
-      <header className="border-b-2 border-rule bg-surface">
+      <header className="border-b border-rule bg-surface">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4">
           <Logo href="/staff" compact />
-          <span className="rounded-md border-2 border-rule bg-ink px-2 py-0.5 font-mono text-[11px] font-bold text-paper uppercase">{me.platformRole === "superadmin" ? "Super admin" : "Staff"}</span>
+          <span className="rounded-md border border-rule bg-ink px-2 py-0.5 font-mono text-[11px] font-bold text-paper uppercase">{me.platformRole === "superadmin" ? "Super admin" : "Staff"}</span>
           <div className="ml-auto flex items-center gap-2">
             <Link href="/app" className="hidden items-center gap-1 text-sm font-semibold text-muted hover:text-ink sm:flex"><ArrowLeft className="h-4 w-4" />Back to app</Link>
             <ThemeToggle />
@@ -41,11 +41,11 @@ export function StaffShell({ me, children }: { me: MeResponse; children: ReactNo
         <nav ref={navRef} aria-label="Staff sections" className="scrollbar-none relative mx-auto flex max-w-7xl gap-1 overflow-x-auto px-3">
           {nav.map(({ href, label, Icon, exact }) => (
             <Link key={href} href={href} aria-current={active(href, exact) ? "page" : undefined}
-              className={cn("flex shrink-0 items-center gap-2 border-b-[3px] border-transparent px-3 py-2.5 text-sm font-semibold", active(href, exact) ? "text-ink" : "text-muted hover:text-ink")}>
+              className={cn("flex shrink-0 items-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-[12px] font-semibold tracking-[0.06em] uppercase", active(href, exact) ? "text-ink" : "text-muted hover:text-ink")}>
               <Icon className="h-4 w-4" />{label}
             </Link>
           ))}
-          <SlidingUnderline container={navRef} selector='[aria-current="page"]' className="bg-brand" />
+          <SlidingUnderline container={navRef} selector='[aria-current="page"]' />
         </nav>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6 md:py-8">{children}</main>

@@ -168,7 +168,7 @@ export function Thread({ orgId, conversation, title, compact }: { orgId: string;
 
   return (
     <div className={cn("flex flex-col", compact ? "h-[420px]" : "h-[calc(100dvh-14rem)] min-h-[420px]")}>
-      {title && <div className="border-b-2 border-rule-soft px-4 py-3 font-display font-bold">{title}</div>}
+      {title && <div className="border-b border-rule-soft px-4 py-3 font-display font-bold">{title}</div>}
       <div ref={listRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4" aria-live="polite">
         {messages.hasNextPage && (
           <div className="text-center"><Button size="sm" variant="ghost" onClick={() => messages.fetchNextPage()} loading={messages.isFetchingNextPage}>Load earlier messages</Button></div>
@@ -201,7 +201,7 @@ export function Thread({ orgId, conversation, title, compact }: { orgId: string;
           );
         })}
       </div>
-      <div className="relative border-t-2 border-rule-soft p-3">
+      <div className="relative border-t border-rule-soft p-3">
         {candidates.length > 0 && (
           <ul className="label-card absolute bottom-full left-3 z-10 mb-2 w-64 p-1" role="listbox" aria-label="Mention someone">
             {candidates.map((p) => (
@@ -227,7 +227,7 @@ export function Thread({ orgId, conversation, title, compact }: { orgId: string;
             }}
             rows={1}
             placeholder="Write a message — @ to mention, Shift+Enter for a new line"
-            className="max-h-40 min-h-11 flex-1 resize-none rounded-xl border-2 border-rule-soft bg-surface px-3 py-2.5 text-sm focus:border-accent focus:outline-none"
+            className="max-h-40 min-h-11 flex-1 resize-none rounded-xl border border-rule-soft bg-surface px-3 py-2.5 text-sm focus:border-accent focus:outline-none"
           />
           <Button type="submit" size="icon" aria-label="Send" loading={send.isPending} disabled={!draft.trim()}><ArrowUp className="h-4 w-4" /></Button>
         </form>

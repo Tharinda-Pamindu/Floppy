@@ -1,6 +1,6 @@
-import type { AssignedTask, AssignedTaskStatus, Priority } from "@floppy/shared";
-import { canPlanWeek } from "@floppy/shared";
-import { and, asc, desc, eq, inArray, or, type SQL } from "drizzle-orm";
+import type { AssignedTask, AssignedTaskStatus, IssueType, ListAssignedTasksQuery, Priority } from "@floppy/shared";
+import { canPlanWeek, isOpenTaskStatus, issueKey, LIMITS, OPEN_TASK_STATUSES } from "@floppy/shared";
+import { and, arrayContains, asc, desc, eq, gte, ilike, inArray, lt, or, sql, type SQL } from "drizzle-orm";
 import type { OrgContext } from "../auth/middleware.js";
 import type { Deps } from "../context.js";
 import {
@@ -8,6 +8,7 @@ import {
   conversations,
   userSettings,
   organizationMemberships,
+  organizations,
   planTasks,
   teamMemberships,
   teamRepos,
@@ -18,6 +19,7 @@ import { AppError, conflict, forbidden, invalid, notFound } from "../errors.js";
 import { displayName, iso, loadPeople } from "./people.js";
 import { createPlan, type Actor } from "./plans.js";
 import type { UserRow } from "./sync.js";
+import { recordTaskEvents, type TaskChange } from "./task-events.js";
 import { isUuid } from "./teams.js";
 
 export type AssignedTaskRow = typeof assignedTasks.$inferSelect;
@@ -135,7 +137,7 @@ export async function toTaskDtos(deps: Deps, org: OrgContext, userId: string, ro
     const link = linkMap.get(t.id);
     const manage = canManageTask(org, userId, t);
     const isAssignee = t.assigneeId === userId;
-    const open = t.status === "todo" || t.status === "in_progress";
+    const open = isOpenTaskStatus(t.status as AssignedTaskStatus);
     return {
       id: t.id,
       organizationId: t.organizationId,
@@ -148,6 +150,11 @@ export async function toTaskDtos(deps: Deps, org: OrgContext, userId: string, ro
       deadline: t.deadline.toISOString(),
       priority: t.priority as Priority,
       status: t.status as AssignedTaskStatus,
+      number: t.number,
+      key: issueKey(org.organization.name, t.number),
+      type: t.type as IssueType,
+      storyPoints: t.storyPoints,
+      labels: t.labels,
       completedAt: iso(t.completedAt),
       github:
         t.githubIssueNumber && repo
@@ -170,12 +177,12 @@ export async function toTaskDtos(deps: Deps, org: OrgContext, userId: string, ro
 
 // -- Queries ---------------------------------------------------------------------
 
-export async function listTasks(
-  deps: Deps,
-  org: OrgContext,
-  userId: string,
-  query: { scope: "mine" | "assigned_by_me" | "team"; teamId?: string; status?: AssignedTaskStatus },
-) {
+/** `%` and `_` are wildcards in ILIKE; a search for them should match them literally. */
+function likePattern(q: string) {
+  return `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+}
+
+export async function listTasks(deps: Deps, org: OrgContext, userId: string, query: ListAssignedTasksQuery) {
   const conditions: (SQL | undefined)[] = [eq(assignedTasks.organizationId, org.organizationId)];
   if (query.scope === "mine") conditions.push(eq(assignedTasks.assigneeId, userId));
   if (query.scope === "assigned_by_me") conditions.push(eq(assignedTasks.assignedById, userId));
@@ -191,12 +198,25 @@ export async function listTasks(
     }
   }
   if (query.status) conditions.push(eq(assignedTasks.status, query.status));
+  if (query.assigneeId) conditions.push(eq(assignedTasks.assigneeId, query.assigneeId));
+  if (query.type) conditions.push(eq(assignedTasks.type, query.type));
+  if (query.priority) conditions.push(eq(assignedTasks.priority, query.priority));
+  if (query.label) conditions.push(arrayContains(assignedTasks.labels, [query.label]));
+  if (query.from && query.to) {
+    conditions.push(gte(assignedTasks.deadline, new Date(query.from)), lt(assignedTasks.deadline, new Date(query.to)));
+  }
+  if (query.q) {
+    // "FLOP-42" or "42" finds the task by its key; anything else searches titles.
+    const byKey = /^(?:[a-z0-9]+-)?(\d{1,9})$/i.exec(query.q);
+    const byTitle = ilike(assignedTasks.title, likePattern(query.q));
+    conditions.push(byKey ? or(eq(assignedTasks.number, Number(byKey[1])), byTitle) : byTitle);
+  }
   const rows = await deps.db
     .select()
     .from(assignedTasks)
     .where(and(...conditions))
     .orderBy(asc(assignedTasks.deadline), desc(assignedTasks.createdAt))
-    .limit(200);
+    .limit(LIMITS.taskListMax);
   return toTaskDtos(deps, org, userId, rows);
 }
 
@@ -256,6 +276,9 @@ export async function createTask(
     teamId?: string | null;
     deadline: string;
     priority: Priority;
+    type: IssueType;
+    storyPoints?: number | null;
+    labels: string[];
     githubRepoId?: string | null;
     githubIssueNumber?: number | null;
   },
@@ -265,22 +288,60 @@ export async function createTask(
   }
   const teamId = await resolveAssignment(deps, org, input.assigneeId, input.teamId);
   const github = await githubFields(deps, org, input.githubRepoId, input.githubIssueNumber);
-  const [task] = await deps.db
-    .insert(assignedTasks)
-    .values({
-      organizationId: org.organizationId,
-      teamId,
-      title: input.title,
-      description: input.description ?? null,
-      assigneeId: input.assigneeId,
-      assignedById: user.id,
-      deadline: new Date(input.deadline),
-      priority: input.priority,
-      ...github,
-    })
-    .returning();
-  await notifyAssigned(deps, org, task!, user);
-  return task!;
+  const task = await deps.db.transaction(async (tx) => {
+    // One atomic bump of the organization's counter: two tasks created at once never share a key.
+    const [seq] = await tx
+      .update(organizations)
+      .set({ taskSeq: sql`${organizations.taskSeq} + 1` })
+      .where(eq(organizations.id, org.organizationId))
+      .returning({ number: organizations.taskSeq });
+    const [row] = await tx
+      .insert(assignedTasks)
+      .values({
+        organizationId: org.organizationId,
+        teamId,
+        title: input.title,
+        description: input.description ?? null,
+        assigneeId: input.assigneeId,
+        assignedById: user.id,
+        deadline: new Date(input.deadline),
+        priority: input.priority,
+        number: seq!.number,
+        type: input.type,
+        storyPoints: input.storyPoints ?? null,
+        labels: input.labels,
+        ...github,
+      })
+      .returning();
+    await recordTaskEvents(tx, { organizationId: org.organizationId, taskId: row!.id, actorId: user.id }, [{ field: "created" }]);
+    return row!;
+  });
+  await notifyAssigned(deps, org, task, user);
+  return task;
+}
+
+const joinLabels = (labels: string[]) => (labels.length ? labels.join(", ") : null);
+
+/** What an update changes, as history entries (only fields whose value really moved). */
+function diffTask(before: AssignedTaskRow, after: Partial<AssignedTaskRow>): TaskChange[] {
+  const out: TaskChange[] = [];
+  const add = (field: TaskChange["field"], from: string | null, to: string | null) => {
+    if (from !== to) out.push({ field, from, to });
+  };
+  if (after.title !== undefined) add("title", before.title, after.title);
+  if (after.description !== undefined && (after.description ?? null) !== (before.description ?? null)) {
+    out.push({ field: "description" });
+  }
+  if (after.assigneeId !== undefined) add("assignee", before.assigneeId, after.assigneeId);
+  if (after.deadline !== undefined) add("deadline", before.deadline.toISOString(), after.deadline.toISOString());
+  if (after.priority !== undefined) add("priority", before.priority, after.priority);
+  if (after.status !== undefined) add("status", before.status, after.status);
+  if (after.type !== undefined) add("type", before.type, after.type);
+  if (after.storyPoints !== undefined) {
+    add("story_points", before.storyPoints?.toString() ?? null, after.storyPoints?.toString() ?? null);
+  }
+  if (after.labels !== undefined) add("labels", joinLabels(before.labels), joinLabels(after.labels));
+  return out;
 }
 
 export async function updateTask(
@@ -295,6 +356,9 @@ export async function updateTask(
     deadline?: string;
     priority?: Priority;
     status?: AssignedTaskStatus;
+    type?: IssueType;
+    storyPoints?: number | null;
+    labels?: string[];
   },
 ) {
   const manage = canManageTask(org, user.id, task);
@@ -304,7 +368,10 @@ export async function updateTask(
     input.description !== undefined ||
     input.assigneeId !== undefined ||
     input.deadline !== undefined ||
-    input.priority !== undefined;
+    input.priority !== undefined ||
+    input.type !== undefined ||
+    input.storyPoints !== undefined ||
+    input.labels !== undefined;
   if (editsDetails && !manage) {
     throw forbidden("Only the person who assigned this task, a team lead or an admin can change it.", "TASK_MANAGER_REQUIRED");
   }
@@ -324,6 +391,9 @@ export async function updateTask(
   if (input.description !== undefined) changes.description = input.description;
   if (input.deadline !== undefined) changes.deadline = new Date(input.deadline);
   if (input.priority !== undefined) changes.priority = input.priority;
+  if (input.type !== undefined) changes.type = input.type;
+  if (input.storyPoints !== undefined) changes.storyPoints = input.storyPoints;
+  if (input.labels !== undefined) changes.labels = input.labels;
   if (input.assigneeId !== undefined && input.assigneeId !== task.assigneeId) {
     changes.teamId = await resolveAssignment(deps, org, input.assigneeId, task.teamId ?? undefined);
     changes.assigneeId = input.assigneeId;
@@ -335,6 +405,7 @@ export async function updateTask(
 
   await deps.db.transaction(async (tx) => {
     await tx.update(assignedTasks).set(changes).where(eq(assignedTasks.id, task.id));
+    await recordTaskEvents(tx, { organizationId: org.organizationId, taskId: task.id, actorId: user.id }, diffTask(task, changes));
     if (changes.assigneeId) {
       // A reassigned task leaves the previous person's plan link behind.
       await tx.update(planTasks).set({ assignedTaskId: null }).where(eq(planTasks.assignedTaskId, task.id));
@@ -427,6 +498,11 @@ export async function pullIntoPlan(
     });
     if (task.status === "todo") {
       await tx.update(assignedTasks).set({ status: "in_progress", updatedAt: deps.now() }).where(eq(assignedTasks.id, task.id));
+      await recordTaskEvents(
+        tx,
+        { organizationId: org.organizationId, taskId: task.id, actorId: actor.userId },
+        [{ field: "status", from: "todo", to: "in_progress" }],
+      );
     }
     await tx.update(weeklyPlans).set({ updatedAt: deps.now() }).where(eq(weeklyPlans.id, plan!.id));
   });
@@ -442,7 +518,7 @@ export async function openTasksFor(deps: Deps, org: OrgContext, userId: string) 
       and(
         eq(assignedTasks.organizationId, org.organizationId),
         eq(assignedTasks.assigneeId, userId),
-        or(eq(assignedTasks.status, "todo"), eq(assignedTasks.status, "in_progress")),
+        inArray(assignedTasks.status, [...OPEN_TASK_STATUSES]),
       ),
     )
     .orderBy(asc(assignedTasks.deadline));

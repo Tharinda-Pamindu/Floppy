@@ -1,6 +1,6 @@
 "use client";
 
-import type { AssignedTask, GithubIssue, PersonRef, Priority } from "@floppy/shared";
+import type { AssignedTask, GithubIssue, IssueType, PersonRef, Priority } from "@floppy/shared";
 import { LIMITS, PRIORITIES } from "@floppy/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleDot } from "lucide-react";
@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/toast";
 import { errorMessage, useApi } from "@/lib/api";
 import { keys, useMe, useTeams } from "@/lib/queries";
 import { fullName, toLocalInput } from "@/lib/utils";
+import { IssueFields, parseLabels } from "./issue-fields";
 
 function defaultDeadline() {
   const d = new Date();
@@ -54,6 +55,10 @@ export function AssignTaskDialog({
   const [assigneeId, setAssigneeId] = useState(assignee?.id ?? "");
   const [deadline, setDeadline] = useState(defaultDeadline);
   const [priority, setPriority] = useState<Priority>("normal");
+  // A GitHub issue is most often a bug report.
+  const [type, setType] = useState<IssueType>(github ? "bug" : "task");
+  const [points, setPoints] = useState<number | null>(null);
+  const [labels, setLabels] = useState("");
 
   const create = useMutation({
     mutationFn: () =>
@@ -66,13 +71,16 @@ export function AssignTaskDialog({
           teamId: teamId ?? null,
           deadline: new Date(deadline).toISOString(),
           priority,
+          type,
+          storyPoints: points,
+          labels: parseLabels(labels),
           ...(github ? { githubRepoId: github.repoId, githubIssueNumber: github.issue.number } : {}),
         },
       }),
     onSuccess: (task) => {
       void queryClient.invalidateQueries({ queryKey: keys.tasks(orgId) });
       void queryClient.invalidateQueries({ queryKey: ["org", orgId, "teams"] });
-      toast.ok(`Assigned to ${fullName(task.assignee)}. They've been emailed.`);
+      toast.ok(`${task.key} assigned to ${fullName(task.assignee)}. They've been emailed.`);
       setOpen(false);
       router.push(`/app/${orgId}/tasks/${task.id}`);
     },
@@ -125,6 +133,7 @@ export function AssignTaskDialog({
             </Select>
           </Field>
         </div>
+        <IssueFields idPrefix="at" type={type} onType={setType} points={points} onPoints={setPoints} labels={labels} onLabels={setLabels} />
         <FormError message={create.error ? errorMessage(create.error) : null} />
       </div>
     </Dialog>

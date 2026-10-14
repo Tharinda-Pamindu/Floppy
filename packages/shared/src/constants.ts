@@ -28,8 +28,36 @@ export type TaskKind = (typeof TASK_KINDS)[number];
 export const REVIEW_ACTIONS = ["approved", "changes_requested"] as const;
 export type ReviewAction = (typeof REVIEW_ACTIONS)[number];
 
-export const ASSIGNED_TASK_STATUSES = ["todo", "in_progress", "done", "cancelled"] as const;
+export const ASSIGNED_TASK_STATUSES = ["todo", "in_progress", "in_review", "done", "cancelled"] as const;
 export type AssignedTaskStatus = (typeof ASSIGNED_TASK_STATUSES)[number];
+/** Statuses that still need work: reminders, the plan picker and "open" counts use these. */
+export const OPEN_TASK_STATUSES = ["todo", "in_progress", "in_review"] as const satisfies readonly AssignedTaskStatus[];
+export function isOpenTaskStatus(status: AssignedTaskStatus) {
+  return (OPEN_TASK_STATUSES as readonly AssignedTaskStatus[]).includes(status);
+}
+/** The board's columns, left to right (cancelled tasks stay off the board). */
+export const BOARD_STATUSES = ["todo", "in_progress", "in_review", "done"] as const satisfies readonly AssignedTaskStatus[];
+
+/** Jira-style issue types. */
+export const ISSUE_TYPES = ["task", "bug", "story"] as const;
+export type IssueType = (typeof ISSUE_TYPES)[number];
+/** Suggested story points (any whole number from 1 to LIMITS.storyPointsMax is allowed). */
+export const STORY_POINT_SCALE = [1, 2, 3, 5, 8, 13, 21] as const;
+
+/** Fields a task's history records. */
+export const TASK_EVENT_FIELDS = [
+  "created",
+  "title",
+  "description",
+  "assignee",
+  "deadline",
+  "priority",
+  "status",
+  "type",
+  "story_points",
+  "labels",
+] as const;
+export type TaskEventField = (typeof TASK_EVENT_FIELDS)[number];
 
 export const PRIORITIES = ["low", "normal", "high", "urgent"] as const;
 export type Priority = (typeof PRIORITIES)[number];
@@ -79,6 +107,28 @@ export const LIMITS = {
   inviteExpireDays: 14,
   aiCallsPerMinute: 6,
   messagesPerMinute: 30,
+  storyPointsMax: 100,
+  labelMax: 24,
+  maxLabels: 5,
+  taskSearchMax: 100,
+  /** Most tasks one list, board or calendar request returns. */
+  taskListMax: 300,
+  /** Widest date range one calendar request may ask for (six weeks plus slack). */
+  calendarRangeMaxDays: 62,
 } as const;
+
+/**
+ * The prefix of an organization's issue keys (FLOP in FLOP-42), from its name:
+ * the initials of a multi-word name ("Harbor Health" → HH), otherwise the
+ * first four letters ("Northwind" → NORT). Display only; numbers are what's stored.
+ */
+export function issueKeyPrefix(orgName: string) {
+  const words = orgName.toUpperCase().match(/[A-Z0-9]+/g) ?? [];
+  const prefix = words.length > 1 ? words.map((w) => w[0]).join("").slice(0, 4) : (words[0] ?? "").slice(0, 4);
+  return prefix || "TASK";
+}
+export function issueKey(orgName: string, number: number) {
+  return `${issueKeyPrefix(orgName)}-${number}`;
+}
 
 export const DEFAULT_FIRST_TEAM_NAME = "Core team";

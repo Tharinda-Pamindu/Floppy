@@ -48,7 +48,7 @@ export default function TeamsPage({ params }: { params: Promise<{ orgId: string 
 function TeamCard({ orgId, team }: { orgId: string; team: Team }) {
   return (
     <li>
-      <Link href={`/app/${orgId}/teams/${team.id}`} className="label-card flex h-full flex-col p-4 transition-transform hover:-translate-y-0.5">
+      <Link href={`/app/${orgId}/teams/${team.id}`} className="label-card flex h-full flex-col p-4 transition-[border-color,box-shadow] hover:border-rule-strong hover:shadow-[var(--shadow-pop)]">
         <div className="flex items-start justify-between gap-2">
           <h2 className="font-display text-xl font-bold">{team.name}</h2>
           <span className="font-mono text-xs text-muted">{team.members.length} people</span>
@@ -56,7 +56,7 @@ function TeamCard({ orgId, team }: { orgId: string; team: Team }) {
         {team.description && <p className="mt-1 line-clamp-2 text-sm text-ink-soft">{team.description}</p>}
         <div className="mt-auto pt-4">
           {team.lead ? (
-            <div className="flex items-center gap-2 text-sm"><Crown className="h-4 w-4 text-brand" /><Avatar person={team.lead} size={24} /> {fullName(team.lead)}</div>
+            <div className="flex items-center gap-2 text-sm"><Crown className="h-4 w-4 text-warn" /><Avatar person={team.lead} size={24} /> {fullName(team.lead)}</div>
           ) : (
             <div className="flex items-center gap-2 text-sm font-semibold text-warn"><AlertTriangle className="h-4 w-4" />No lead yet, so nobody can approve plans</div>
           )}

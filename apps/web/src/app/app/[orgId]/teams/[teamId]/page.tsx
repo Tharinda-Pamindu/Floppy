@@ -89,7 +89,7 @@ function TeamWeek({ orgId, team }: { orgId: string; team: Team }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-1 rounded-full border-2 border-rule bg-surface p-1">
+        <div className="flex items-center gap-1 rounded-full border border-rule bg-surface p-1">
           <Button variant="ghost" size="icon-sm" aria-label="Previous week" onClick={() => setWeek(addWeeks(week, -1))}><ChevronLeft className="h-4 w-4" /></Button>
           <span className="px-2 text-sm font-semibold">{weekLabel(week)} <span className="font-mono text-xs text-muted">{weekRange(week)}</span></span>
           <Button variant="ghost" size="icon-sm" aria-label="Next week" onClick={() => setWeek(addWeeks(week, 1))} disabled={week >= addWeeks(current, 1)}><ChevronRight className="h-4 w-4" /></Button>
@@ -102,7 +102,7 @@ function TeamWeek({ orgId, team }: { orgId: string; team: Team }) {
           <tbody>
             {data.map(({ member, plan }) => (
               <tr key={member.id}>
-                <Td><span className="flex items-center gap-2 font-semibold"><Avatar person={member} size={26} />{fullName(member)}{member.isLead && <Crown className="h-3.5 w-3.5 text-brand" aria-label="Lead" />}</span></Td>
+                <Td><span className="flex items-center gap-2 font-semibold"><Avatar person={member} size={26} />{fullName(member)}{member.isLead && <Crown className="h-3.5 w-3.5 text-warn" aria-label="Lead" />}</span></Td>
                 <Td className="max-w-72">
                   {!plan ? <span className="text-muted">Not started</span> : plan.readable ? (
                     <Link href={`/app/${orgId}/plans/${plan.id}`} className="line-clamp-2 font-medium text-accent hover:underline">{plan.mainTaskTitle ?? "No main task"}</Link>
@@ -186,7 +186,7 @@ function People({ orgId, team, isManager }: { orgId: string; team: Team; isManag
           <Button onClick={() => setMember.mutate({ userId: adding, isLead: false })} disabled={!adding} loading={setMember.isPending}><UserPlus className="h-4 w-4" />Add to team</Button>
         </div>
       )}
-      {!team.lead && <p className="rounded-xl border-2 border-warn bg-warn-soft px-3 py-2 text-sm font-semibold text-warn">This team has no lead, so nobody can approve its members&apos; plans.</p>}
+      {!team.lead && <p className="rounded-xl border border-warn bg-warn-soft px-3 py-2 text-sm font-semibold text-warn">This team has no lead, so nobody can approve its members&apos; plans.</p>}
       {team.members.length === 0 ? (
         <EmptyState title="Nobody on this team yet" />
       ) : (
@@ -250,7 +250,7 @@ function Repos({ orgId, team, isManager }: { orgId: string; team: Team; isManage
         <div className="grid gap-4 lg:grid-cols-[240px_1fr]">
           <ul className="space-y-2">
             {repos.data.map((r) => (
-              <li key={r.id} className={`flex items-center gap-2 rounded-xl border-2 px-3 py-2 ${r.id === active ? "border-rule bg-accent-soft" : "border-rule-soft"}`}>
+              <li key={r.id} className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${r.id === active ? "border-rule bg-accent-soft" : "border-rule-soft"}`}>
                 <button className="min-w-0 flex-1 truncate text-left font-mono text-sm font-semibold" onClick={() => setSelected(r.id)}>{r.fullName}</button>
                 <a href={r.htmlUrl} target="_blank" rel="noopener noreferrer" aria-label={`Open ${r.fullName} on GitHub`}><ExternalLink className="h-3.5 w-3.5" /></a>
                 {canManage && <button aria-label={`Unlink ${r.fullName}`} onClick={() => unlink.mutate(r.id)} className="text-muted hover:text-danger"><Trash2 className="h-3.5 w-3.5" /></button>}

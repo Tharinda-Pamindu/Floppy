@@ -51,7 +51,7 @@ export function SlidingUnderline({
     <span
       aria-hidden
       className={cn(
-        "pointer-events-none absolute bottom-0 left-0 h-[3px] rounded-full bg-accent",
+        "pointer-events-none absolute bottom-0 left-0 h-0.5 rounded-full bg-highlight",
         animate && "transition-[transform,width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
         className,
       )}

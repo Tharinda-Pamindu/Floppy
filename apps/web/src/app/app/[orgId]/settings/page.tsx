@@ -86,7 +86,7 @@ function People({ orgId, org }: { orgId: string; org: OrganizationDetail }) {
   if (members.error) return <ErrorState error={members.error} onRetry={() => members.refetch()} />;
   return (
     <section className="label-card-flat overflow-hidden">
-      <h2 className="border-b-2 border-rule-soft px-4 py-3 font-display font-bold">People · {members.data?.length}</h2>
+      <h2 className="border-b border-rule-soft px-4 py-3 font-display font-bold">People · {members.data?.length}</h2>
       <ul className="divide-y-2 divide-rule-soft">
         {members.data?.map((m) => {
           const self = m.id === me.data?.id;
@@ -149,7 +149,7 @@ function Invites({ orgId }: { orgId: string }) {
         <FormError message={create.error ? errorMessage(create.error) : null} />
       </form>
       {last && (
-        <div className="rounded-xl border-2 border-ok bg-ok-soft p-3 text-sm">
+        <div className="rounded-xl border border-ok bg-ok-soft p-3 text-sm">
           Invitation emailed to <strong>{last.email}</strong>. It works for that address only.
           {last.url && (
             <Button size="sm" variant="outline" className="mt-2" onClick={() => navigator.clipboard.writeText(last.url!).then(() => toast.ok("Link copied."))}><Copy className="h-3.5 w-3.5" />Copy link</Button>
@@ -157,7 +157,7 @@ function Invites({ orgId }: { orgId: string }) {
         </div>
       )}
       <div>
-        <h3 className="mb-1 font-mono text-[11px] font-bold tracking-widest text-muted uppercase">Pending</h3>
+        <h3 className="mb-1 text-[11px] font-semibold tracking-wider text-muted uppercase">Pending</h3>
         {invites.data?.length ? (
           <ul className="space-y-1">
             {invites.data.map((i) => (

@@ -46,7 +46,7 @@ export function EmptyState({
 }) {
   return (
     <div className={cn("label-card-flat paper-grid flex flex-col items-center gap-3 border-dashed px-6 py-12 text-center", className)}>
-      {icon && <div className="grid h-12 w-12 place-items-center rounded-full border-2 border-rule bg-surface text-ink">{icon}</div>}
+      {icon && <div className="grid h-12 w-12 place-items-center rounded-full border border-rule bg-surface text-ink">{icon}</div>}
       <h3 className="font-display text-lg font-bold">{title}</h3>
       {children && <div className="max-w-md text-sm text-ink-soft">{children}</div>}
       {action && <div className="mt-2 flex flex-wrap justify-center gap-2">{action}</div>}
@@ -97,8 +97,8 @@ export function PageHeader({ eyebrow, title, description, actions }: { eyebrow?:
   return (
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        {eyebrow && <div className="mb-1 font-mono text-xs font-semibold tracking-widest text-accent uppercase">{eyebrow}</div>}
-        <h1 className="font-display text-3xl leading-tight font-extrabold sm:text-4xl">{title}</h1>
+        {eyebrow && <div className="mb-1 text-xs font-semibold tracking-wider text-accent uppercase">{eyebrow}</div>}
+        <h1 className="font-display text-3xl leading-tight font-bold sm:text-4xl">{title}</h1>
         {description && <p className="mt-2 max-w-2xl text-ink-soft">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
