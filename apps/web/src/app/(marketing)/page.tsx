@@ -302,11 +302,7 @@ export default function Landing() {
       <footer className="relative border-t border-rule bg-paper">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm sm:flex-row">
           <div className="flex items-center gap-3"><Logo /><span className="text-muted">{BRAND.tagline}</span></div>
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <Link href="/sign-in" className="font-semibold hover:text-accent">Sign in</Link>
-            <span className="text-muted">© {new Date().getFullYear()} Floppy</span>
-          </div>
+          <span className="text-muted">© {new Date().getFullYear()} Floppy</span>
         </div>
       </footer>
     </div>
