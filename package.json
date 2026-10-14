@@ -1,0 +1,32 @@
+{
+  "name": "floppy",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Floppy: weekly planning for software teams. Less strain. More brain.",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:api": "npm run dev -w @floppy/api",
+    "dev:web": "npm run dev -w @floppy/web",
+    "build": "npm run build -w @floppy/shared && npm run build -w @floppy/api && npm run build -w @floppy/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "db:generate": "npm run db:generate -w @floppy/api",
+    "db:migrate": "npm run db:migrate -w @floppy/api",
+    "db:seed": "npm run db:seed -w @floppy/api",
+    "staff:create": "npm run staff:create -w @floppy/api --",
+    "superadmin:create": "npm run superadmin:create -w @floppy/api --",
+    "notify:test": "npm run notify:test -w @floppy/api --",
+    "build:shared": "npm run build -w @floppy/shared"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}
