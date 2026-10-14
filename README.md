@@ -4,6 +4,27 @@
 
 **Less strain. More brain.** Weekly planning for software teams. Every engineer commits to one thing they'll ship this week, and a lead approves the plan before the week starts. By Friday the team knows what actually shipped.
 
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
+![Node.js 22.12+](https://img.shields.io/badge/node-22.12%2B-339933.svg)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
+
+![Floppy's home page: "Less strain. More brain." above a group of teammates celebrating a completed week](docs/images/home.png)
+
+## Features
+
+- **Weekly plans.** One main task with a *why*, sub-goals and go-to-market goals. Drafts are private; submitted plans go to the right lead.
+- **Lead approval.** Leads approve a plan or send it back with one comment, and see the whole team's week on one screen.
+- **Tasks like Jira.** Keys such as `NORT-42`, types (Task, Bug, Story), story points, labels, an *In review* status and a full activity history on every task.
+- **Board and calendar.** Drag tasks between To do, In progress, In review and Done, or across days to move a deadline. A shared filter bar covers search, assignee, type, priority and label.
+- **Chat** on every task and plan, a channel per team and direct messages, in realtime.
+- **Pages:** a versioned markdown wiki for the project.
+- **Notifications** in-app, by email and by SMS, with per-person channel settings and deadline reminders.
+- **GitHub issues** linked to tasks, and an optional **AI plan reviewer**.
+- **Organizations, teams and roles** (owner, admin, team lead, member), plus a staff console that only ever sees metadata.
+- **Light and dark mode**, keyboard support and "reduce motion" throughout. See [ACCESSIBILITY.md](ACCESSIBILITY.md).
+
+## Tech
+
 This is the rebuild of the original FastAPI + TanStack Floppy, on a new stack and with a new design:
 
 | Layer | Tech |
@@ -47,7 +68,7 @@ cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env.local
 ```
 
-Fill the two env files as described below. Real secrets never go into the repo; `.gitignore` excludes `.env` and `.env.local`.
+Fill the two env files as described below. Real secrets never go into the repo: `.gitignore` excludes every `.env` file except the `.env.example` templates.
 
 ## 3. Supabase (database)
 
@@ -150,7 +171,7 @@ This creates two organizations (Northwind Labs, Harbor Health) with:
 - Teams with leads, and a person on two teams.
 - Five closed weeks of plans (some shipped, some not), and this week's plans in every state.
 - Tom's carried-over billing export.
-- Assigned tasks: one overdue, one due tomorrow, one already in a plan.
+- Assigned tasks with keys, types, story points and labels: one overdue, one due tomorrow, one in review, one already in a plan.
 - A linked public GitHub repository, chat history, versioned pages and synthetic AI usage.
 
 The seed prints the logins. Every account uses `DEMO_PASSWORD`, and in a Clerk development instance any email verification code for these `+clerk_test` addresses is `424242`.
@@ -169,7 +190,7 @@ The seed prints the logins. Every account uses `DEMO_PASSWORD`, and in a Clerk d
 ## 8. Test, typecheck, build
 
 ```bash
-npm test             # shared + API: 86 tests (tenancy, plan workflow, tasks, chat, pages, super admin, reminders, realtime…)
+npm test             # shared + API: 97 tests (tenancy, plan workflow, tasks and issues, chat, pages, super admin, reminders, realtime…)
 npm run typecheck
 npm run lint
 npm run build
@@ -196,3 +217,22 @@ API tests run against an in-process Postgres (PGlite) with the real migrations a
 - [ANALYSIS.md](ANALYSIS.md): the original project, feature by feature.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): how the pieces fit.
 - [docs/DATA_MODEL.md](docs/DATA_MODEL.md), [docs/API.md](docs/API.md), [docs/AUTH_AND_RBAC.md](docs/AUTH_AND_RBAC.md), [docs/WORKFLOWS.md](docs/WORKFLOWS.md), [docs/NOTIFICATIONS.md](docs/NOTIFICATIONS.md), [docs/SECURITY.md](docs/SECURITY.md), [docs/AI.md](docs/AI.md), [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+
+## 11. Contributing and community
+
+Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md): setup, the rules of the codebase and what a pull request needs.
+
+- [Code of Conduct](CODE_OF_CONDUCT.md): how we treat each other, and how to report a problem.
+- [Security policy](SECURITY.md): report vulnerabilities privately, never in a public issue.
+- [Accessibility](ACCESSIBILITY.md): what Floppy supports today, known gaps, and how to report a barrier.
+- [Issues](https://github.com/Tharinda-Pamindu/Floppy/issues/new/choose): bug reports, feature requests and accessibility issues each have a template.
+
+## 12. License
+
+Copyright (C) 2026 Tharinda Pamindu.
+
+Floppy is free software: you can redistribute it and/or modify it under the terms of the [GNU Affero General Public License v3.0](LICENSE) as published by the Free Software Foundation.
+
+Floppy is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+If you run a modified version of Floppy for other people to use over a network, the AGPL requires you to offer them the source code of your version. The site footer's **Source code** link does this for the original project.
