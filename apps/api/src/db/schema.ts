@@ -92,6 +92,8 @@ export const organizations = pgTable("organizations", {
   /** Set by platform staff; a suspended org's members are locked out of it. */
   suspendedAt: ts("suspended_at"),
   suspendedReason: text("suspended_reason"),
+  /** The last issue number handed out; tasks get keys like FLOP-42 from it. */
+  taskSeq: integer("task_seq").notNull().default(0),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
@@ -241,6 +243,11 @@ export const assignedTasks = pgTable(
     deadline: ts("deadline").notNull(),
     priority: text("priority").notNull().default("normal"),
     status: text("status").notNull().default("todo"),
+    /** Per-organization issue number (the 42 in FLOP-42), from organizations.task_seq. */
+    number: integer("number").notNull(),
+    type: text("type").notNull().default("task"),
+    storyPoints: integer("story_points"),
+    labels: text("labels").array().notNull().default(sql`'{}'::text[]`),
     completedAt: ts("completed_at"),
     githubRepoId: uuid("github_repo_id").references(() => teamRepos.id, { onDelete: "set null" }),
     githubIssueNumber: integer("github_issue_number"),
@@ -252,13 +259,43 @@ export const assignedTasks = pgTable(
     updatedAt: updatedAt(),
   },
   (t) => [
-    check("ck_assigned_task_status", inList("status", ["todo", "in_progress", "done", "cancelled"])),
+    check("ck_assigned_task_status", inList("status", ["todo", "in_progress", "in_review", "done", "cancelled"])),
     check("ck_assigned_task_priority", inList("priority", ["low", "normal", "high", "urgent"])),
+    check("ck_assigned_task_type", inList("type", ["task", "bug", "story"])),
+    check("ck_assigned_task_story_points", sql`${t.storyPoints} IS NULL OR ${t.storyPoints} BETWEEN 1 AND 100`),
+    uniqueIndex("uq_assigned_tasks_org_number").on(t.organizationId, t.number),
+    index("ix_assigned_tasks_labels").using("gin", t.labels),
     index("ix_assigned_tasks_org_assignee").on(t.organizationId, t.assigneeId),
     index("ix_assigned_tasks_org_assigner").on(t.organizationId, t.assignedById),
     index("ix_assigned_tasks_deadline_open")
       .on(t.deadline)
-      .where(sql`${t.status} IN ('todo', 'in_progress')`),
+      .where(sql`${t.status} IN ('todo', 'in_progress', 'in_review')`),
+  ],
+);
+
+/** A task's history: who changed what, from what, to what (Jira's History tab). */
+export const taskEvents = pgTable(
+  "task_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    taskId: uuid("task_id")
+      .notNull()
+      .references(() => assignedTasks.id, { onDelete: "cascade" }),
+    actorId: text("actor_id").references(() => users.id, { onDelete: "set null" }),
+    field: text("field").notNull(),
+    fromValue: text("from_value"),
+    toValue: text("to_value"),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("ix_task_events_task").on(t.taskId, t.createdAt),
+    check(
+      "ck_task_event_field",
+      inList("field", ["created", "title", "description", "assignee", "deadline", "priority", "status", "type", "story_points", "labels"]),
+    ),
   ],
 );
 

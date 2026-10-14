@@ -30,7 +30,7 @@ export default function Approvals({ params }: { params: Promise<{ orgId: string 
             const hours = p.tasks.reduce((n, t) => n + (t.estimateHours ?? 0), 0);
             return (
               <li key={p.id}>
-                <Link href={`/app/${orgId}/plans/${p.id}`} className="label-card block p-4 transition-transform hover:-translate-y-0.5">
+                <Link href={`/app/${orgId}/plans/${p.id}`} className="label-card block p-4 transition-[border-color,box-shadow] hover:border-rule-strong hover:shadow-[var(--shadow-pop)]">
                   <div className="flex items-center gap-3">
                     <Avatar person={p.author} size={36} />
                     <div className="min-w-0">

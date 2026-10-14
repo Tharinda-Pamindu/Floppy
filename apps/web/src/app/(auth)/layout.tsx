@@ -7,10 +7,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="grid min-h-dvh md:grid-cols-[1fr_1.1fr]">
-      <aside className="paper-grid relative hidden flex-col justify-between border-r-2 border-rule p-10 md:flex">
+      <aside className="paper-grid relative hidden flex-col justify-between border-r border-rule p-10 md:flex">
         <Logo />
         <div>
-          <h2 className="font-display text-5xl leading-[0.95] font-extrabold">
+          <h2 className="font-display text-5xl leading-[0.95] font-bold">
             Less strain.
             <br />
             <span className="text-accent">More brain.</span>

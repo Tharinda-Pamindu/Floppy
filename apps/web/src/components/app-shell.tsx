@@ -4,6 +4,7 @@ import { UserButton } from "@clerk/nextjs";
 import type { OrganizationDetail, OrganizationSummary } from "@floppy/shared";
 import {
   CalendarCheck2,
+  CalendarDays,
   Check,
   ChevronsUpDown,
   CircleDot,
@@ -58,6 +59,7 @@ export function AppShell({ org, children }: { org: OrganizationDetail; children:
     { href: `${base}/week`, label: "My week", Icon: CalendarCheck2 },
     { href: `${base}/approvals`, label: "Approvals", Icon: InboxIcon, badge: approvals.data?.length },
     { href: `${base}/tasks`, label: "Tasks", Icon: CircleDot },
+    { href: `${base}/calendar`, label: "Calendar", Icon: CalendarDays },
     { href: `${base}/chat`, label: "Chat", Icon: MessagesSquare, badge: unread },
     { href: `${base}/teams`, label: "Teams", Icon: Users },
     { href: `${base}/pages`, label: "Pages", Icon: FileText },
@@ -72,7 +74,7 @@ export function AppShell({ org, children }: { org: OrganizationDetail; children:
   return (
     <OrgProvider value={org}>
       <div className="min-h-dvh pb-20 md:pb-0">
-        <header className="sticky top-0 z-40 border-b-2 border-rule bg-paper/95 backdrop-blur">
+        <header className="sticky top-0 z-40 border-b border-rule bg-paper/95 backdrop-blur">
           <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
             <Logo href="/app" compact />
             <OrgSwitcher current={org} />
@@ -89,13 +91,13 @@ export function AppShell({ org, children }: { org: OrganizationDetail; children:
                 href={href}
                 aria-current={isActive(href) ? "page" : undefined}
                 className={cn(
-                  "flex shrink-0 items-center gap-2 border-b-[3px] border-transparent px-3 py-2.5 text-sm font-semibold transition-colors",
+                  "flex shrink-0 items-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-[12px] font-semibold tracking-[0.06em] uppercase transition-colors",
                   isActive(href) ? "text-ink" : "text-muted hover:text-ink",
                 )}
               >
                 <Icon className="h-4 w-4" />
                 {label}
-                {!!badge && <span className="rounded-full bg-brand px-1.5 font-mono text-[10px] font-bold text-white">{badge}</span>}
+                {!!badge && <span className="rounded-full bg-accent px-1.5 text-[10px] font-semibold text-accent-ink">{badge}</span>}
               </Link>
             ))}
             <SlidingUnderline container={sectionsRef} selector='[aria-current="page"]' />
@@ -103,18 +105,18 @@ export function AppShell({ org, children }: { org: OrganizationDetail; children:
         </header>
 
         {org.suspended && (
-          <div className="border-b-2 border-rule bg-warn-soft px-4 py-2 text-center text-sm font-semibold text-warn">This organization is suspended.</div>
+          <div className="border-b border-rule bg-warn-soft px-4 py-2 text-center text-sm font-semibold text-warn">This organization is suspended.</div>
         )}
 
         <main className="mx-auto max-w-7xl px-4 py-6 md:py-8">{children}</main>
 
         {/* Mobile bottom tab bar */}
-        <nav aria-label="Sections" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t-2 border-rule bg-surface md:hidden">
+        <nav aria-label="Sections" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-rule bg-surface md:hidden">
           {mobilePrimary.map(({ href, label, Icon, badge }) => (
             <Link key={href} href={href} aria-current={isActive(href) ? "page" : undefined} className={cn("relative flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold", isActive(href) ? "text-accent" : "text-muted")}>
               <Icon className="h-5 w-5" />
               {label === "My week" ? "Week" : label}
-              {!!badge && <span className="absolute top-1 right-[calc(50%-18px)] h-2 w-2 rounded-full bg-brand" />}
+              {!!badge && <span className="absolute top-1 right-[calc(50%-18px)] h-2 w-2 rounded-full bg-accent" />}
             </Link>
           ))}
           <Menu
@@ -148,13 +150,13 @@ function OrgSwitcher({ current }: { current: OrganizationSummary }) {
     <Menu
       align="start"
       trigger={
-        <button className="flex min-w-0 items-center gap-2 rounded-full border-2 border-rule bg-surface px-3 py-1.5 text-sm font-bold hover:bg-surface-2">
+        <button className="flex min-w-0 items-center gap-2 rounded-full border border-rule bg-surface px-3 py-1.5 text-sm font-bold hover:bg-surface-2">
           <span className="max-w-[40vw] truncate sm:max-w-56">{current.name}</span>
           <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-muted" />
         </button>
       }
     >
-      <div className="px-2.5 py-1.5 font-mono text-[10px] font-bold tracking-widest text-muted uppercase">Organizations</div>
+      <div className="px-2.5 py-1.5 text-[10px] font-semibold tracking-wider text-muted uppercase">Organizations</div>
       {(orgs.data ?? []).map((o) => (
         <MenuItem key={o.id} href={`/app/${o.id}/week`} disabled={o.suspended}>
           <span className="truncate">{o.name}</span>
@@ -175,15 +177,15 @@ function AccountMenu({ orgId }: { orgId: string }) {
   const isStaff = me.data && me.data.platformRole !== "none";
   return (
     <div className="flex items-center gap-2">
-      <Link href={`/app/${orgId}/notifications`} className="hidden h-10 w-10 place-items-center rounded-full border-2 border-rule bg-surface hover:bg-surface-2 sm:grid" aria-label="Notification settings" title="Notification settings">
+      <Link href={`/app/${orgId}/notifications`} className="hidden h-10 w-10 place-items-center rounded-full border border-rule bg-surface hover:bg-surface-2 sm:grid" aria-label="Notification settings" title="Notification settings">
         <SlidersHorizontal className="h-4 w-4" />
       </Link>
       {isStaff && (
-        <Link href="/staff" className="hidden h-10 items-center gap-1.5 rounded-full border-2 border-rule bg-ink px-3 text-xs font-bold text-paper sm:flex" title="Staff console">
+        <Link href="/staff" className="hidden h-10 items-center gap-1.5 rounded-full border border-rule bg-ink px-3 text-xs font-bold text-paper sm:flex" title="Staff console">
           <Shield className="h-3.5 w-3.5" /> Staff
         </Link>
       )}
-      <UserButton appearance={{ elements: { avatarBox: "h-10 w-10 border-2 border-[var(--rule)]" } }} />
+      <UserButton appearance={{ elements: { avatarBox: "h-10 w-10 border border-[var(--rule)]" } }} />
     </div>
   );
 }

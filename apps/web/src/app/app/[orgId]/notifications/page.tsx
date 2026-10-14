@@ -131,7 +131,7 @@ function Preferences() {
         <p className="mb-3 text-sm text-ink-soft">Turning a channel off here turns it off for everything that isn&apos;t critical.</p>
         <div className="grid gap-3 sm:grid-cols-3">
           {CHANNELS.map(({ key, label, Icon }) => (
-            <label key={key} className="flex items-center justify-between gap-3 rounded-xl border-2 border-rule-soft px-3 py-2.5">
+            <label key={key} className="flex items-center justify-between gap-3 rounded-xl border border-rule-soft px-3 py-2.5">
               <span className="flex items-center gap-2 font-semibold"><Icon className="h-4 w-4" />{label}</span>
               <Switch label={`${label} notifications`} checked={p.global[key]} onCheckedChange={(v) => update.mutate({ channels: { [key]: v } })} />
             </label>
@@ -142,7 +142,7 @@ function Preferences() {
       <section className="label-card-flat overflow-x-auto">
         <table className="w-full min-w-[520px] text-sm">
           <thead>
-            <tr className="border-b-2 border-rule bg-surface-2 text-left font-mono text-[11px] tracking-wider uppercase">
+            <tr className="border-b border-rule bg-surface-2 text-left font-mono text-[11px] tracking-wider uppercase">
               <th className="px-4 py-2.5">Notification</th>
               {CHANNELS.map((c) => <th key={c.key} className="px-3 py-2.5 text-center">{c.label}</th>)}
             </tr>

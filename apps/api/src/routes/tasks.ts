@@ -15,6 +15,7 @@ import {
   toTaskDtos,
   updateTask,
 } from "../services/tasks.js";
+import { listTaskEvents } from "../services/task-events.js";
 import { ctx, param, parse } from "./util.js";
 
 export function taskRoutes(deps: Deps) {
@@ -48,6 +49,13 @@ export function taskRoutes(deps: Deps) {
       return;
     }
     res.json((await toTaskDtos(deps, org, user.id, [visible]))[0]);
+  });
+
+  // The task's history (Jira's History tab). Same visibility as the task itself: others get 404.
+  r.get("/:taskId/activity", async (req, res) => {
+    const { org, user } = ctx(req);
+    const task = await getVisibleTask(deps, org, user.id, param(req, "taskId"));
+    res.json(await listTaskEvents(deps.db, task.id));
   });
 
   r.post("/:taskId/pull-into-plan", async (req, res) => {

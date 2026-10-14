@@ -5,6 +5,8 @@ import type {
   ConversationKind,
   DeadlineLead,
   DeletionRequestStatus,
+  IssueType,
+  TaskEventField,
   OrgRole,
   PlanStatus,
   PlatformRole,
@@ -212,12 +214,28 @@ export interface AssignedTask {
   deadline: string;
   priority: Priority;
   status: AssignedTaskStatus;
+  /** Per-organization number; `key` is the display form, e.g. FLOP-42. */
+  number: number;
+  key: string;
+  type: IssueType;
+  storyPoints: number | null;
+  labels: string[];
   completedAt: string | null;
   github: GithubIssueRef | null;
   planLink: { planId: string; planTaskId: string; weekStart: string } | null;
   conversationId: string | null;
   createdAt: string;
   permissions: { edit: boolean; changeStatus: boolean; pull: boolean };
+}
+
+/** One change in a task's history. Values are display-ready text (names, ISO dates, labels joined by ", "). */
+export interface TaskEvent {
+  id: string;
+  field: TaskEventField;
+  from: string | null;
+  to: string | null;
+  actor: PersonRef | null;
+  createdAt: string;
 }
 
 export interface TeamRepo {

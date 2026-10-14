@@ -54,12 +54,12 @@ export default function Welcome() {
 
   return (
     <div className="min-h-dvh">
-      <header className="flex items-center justify-between border-b-2 border-rule px-4 py-3">
+      <header className="flex items-center justify-between border-b border-rule px-4 py-3">
         <Logo href="/app" />
         <div className="flex items-center gap-2"><ThemeToggle /><UserButton /></div>
       </header>
       <main className="mx-auto max-w-4xl px-4 py-10">
-        <h1 className="font-display text-4xl font-extrabold">Hi{me.data?.firstName ? ` ${me.data.firstName}` : ""}. Where are we planning?</h1>
+        <h1 className="font-display text-4xl font-bold">Hi{me.data?.firstName ? ` ${me.data.firstName}` : ""}. Where are we planning?</h1>
         <p className="mt-2 text-ink-soft">Open one of your organizations, start a new one, or accept an invite from your email.</p>
 
         <div className="mt-8 grid gap-6 md:grid-cols-2">
@@ -71,12 +71,12 @@ export default function Welcome() {
               {orgs.data?.length === 0 && <p className="text-sm text-muted">You&apos;re not in any organization yet.</p>}
               {orgs.data?.map((o) =>
                 o.suspended ? (
-                  <div key={o.id} className="flex items-center justify-between rounded-xl border-2 border-rule-soft px-3 py-2.5 opacity-60">
+                  <div key={o.id} className="flex items-center justify-between rounded-xl border border-rule-soft px-3 py-2.5 opacity-60">
                     <span className="flex items-center gap-2 font-semibold"><PauseCircle className="h-4 w-4" />{o.name}</span>
                     <Badge tone="warn">Suspended</Badge>
                   </div>
                 ) : (
-                  <Link key={o.id} href={`/app/${o.id}/week`} className="flex items-center justify-between rounded-xl border-2 border-rule px-3 py-2.5 font-semibold hover:bg-surface-2">
+                  <Link key={o.id} href={`/app/${o.id}/week`} className="flex items-center justify-between rounded-xl border border-rule px-3 py-2.5 font-semibold hover:bg-surface-2">
                     {o.name}
                     <span className="flex items-center gap-2"><Badge>{o.role}</Badge><ArrowRight className="h-4 w-4" /></span>
                   </Link>

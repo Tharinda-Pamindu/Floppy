@@ -62,7 +62,7 @@ export default function StaffOrg({ params }: { params: Promise<{ orgId: string }
           </Dialog>
         )}
       />
-      {o.suspendedAt && <div className="mb-4 rounded-xl border-2 border-warn bg-warn-soft px-4 py-2.5 text-sm"><strong>Suspended {formatDateTime(o.suspendedAt)}.</strong> {o.suspendedReason}</div>}
+      {o.suspendedAt && <div className="mb-4 rounded-xl border border-warn bg-warn-soft px-4 py-2.5 text-sm"><strong>Suspended {formatDateTime(o.suspendedAt)}.</strong> {o.suspendedReason}</div>}
       <div className="mb-6 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <Stat label="Members" value={o.memberCount} /><Stat label="Teams" value={o.teamCount} /><Stat label="Plans" value={o.planCount} />
         <Stat label="Tasks" value={o.taskCount} /><Stat label="Messages" value={o.messageCount} /><Stat label="Pages" value={o.pageCount} />
@@ -91,7 +91,7 @@ export default function StaffOrg({ params }: { params: Promise<{ orgId: string }
               {teams.map((t) => (
                 <li key={t.id} className="label-card-flat flex items-center justify-between px-3 py-2 text-sm">
                   <span className="font-semibold">{t.name}</span>
-                  <span className="flex items-center gap-2 text-muted">{t.lead ? <><Crown className="h-3.5 w-3.5 text-brand" />{fullName(t.lead)}</> : "no lead"} · {t.memberCount}</span>
+                  <span className="flex items-center gap-2 text-muted">{t.lead ? <><Crown className="h-3.5 w-3.5 text-warn" />{fullName(t.lead)}</> : "no lead"} · {t.memberCount}</span>
                 </li>
               ))}
             </ul>

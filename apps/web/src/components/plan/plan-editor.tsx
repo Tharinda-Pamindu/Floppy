@@ -193,7 +193,7 @@ export function PlanEditor({ orgId, weekStart, plan, onSaved }: { orgId: string;
       </div>
 
       {undo && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border-2 border-accent bg-accent-soft px-4 py-2.5 text-sm">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-accent bg-accent-soft px-4 py-2.5 text-sm">
           <span><Wand2 className="mr-1.5 inline h-4 w-4" />Filled from your notes. Nothing is saved until you save.</span>
           <Button size="sm" variant="outline" onClick={() => { setRows(undo); setUndo(null); }}><Undo2 className="h-3.5 w-3.5" />Undo</Button>
         </div>
@@ -214,7 +214,7 @@ export function PlanEditor({ orgId, weekStart, plan, onSaved }: { orgId: string;
 
       {/* Main task */}
       <section className="label-card overflow-hidden">
-        <div className="border-b-2 border-rule bg-accent-soft px-4 py-2 font-mono text-xs font-bold tracking-widest uppercase">Main · the one thing you&apos;ll ship</div>
+        <div className="border-b border-rule bg-accent-soft px-4 py-2 text-xs font-semibold tracking-wider uppercase">Main · the one thing you&apos;ll ship</div>
         <div className="space-y-3 p-4">
           <div className="flex gap-2">
             <Input aria-label="Main task" placeholder="A result someone can check on Friday, e.g. “Partial refunds live for EU merchants”" value={main.title} maxLength={LIMITS.taskTitleMax} onChange={(e) => update(main.key, { title: e.target.value })} className="font-semibold" />
@@ -228,14 +228,14 @@ export function PlanEditor({ orgId, weekStart, plan, onSaved }: { orgId: string;
 
       {(["sub_goal", "gtm"] as const).map((kind) => (
         <section key={kind} className="label-card-flat overflow-hidden">
-          <div className="border-b-2 border-rule-soft px-4 py-2 font-mono text-xs font-bold tracking-widest text-ink-soft uppercase">
+          <div className="border-b border-rule-soft px-4 py-2 text-xs font-semibold tracking-wider text-ink-soft uppercase">
             {kind === "sub_goal" ? "Sub-goals · what gets the main task over the line" : "Go-to-market · how users will find out"}
           </div>
           <ul className="divide-y-2 divide-rule-soft">
             {rows.filter((r) => r.kind === kind).map((row) => (
               <li key={row.key} className="space-y-2 p-3">
                 <div className="flex items-center gap-2">
-                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md border-2 border-rule-soft text-muted">{row.assignedTaskId ? <CircleDot className="h-3.5 w-3.5 text-accent" /> : <Plus className="h-3.5 w-3.5" />}</span>
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md border border-rule-soft text-muted">{row.assignedTaskId ? <CircleDot className="h-3.5 w-3.5 text-accent" /> : <Plus className="h-3.5 w-3.5" />}</span>
                   <Input aria-label={kind === "sub_goal" ? "Sub-goal" : "Go-to-market goal"} placeholder={kind === "sub_goal" ? "Add a sub-goal" : "Add a go-to-market goal"} value={row.title} maxLength={LIMITS.taskTitleMax} onChange={(e) => update(row.key, { title: e.target.value })} className="h-10" />
                   <HoursInput value={row.hours} onChange={(hours) => update(row.key, { hours })} label="Hours" />
                   {row.title.trim() && (
@@ -248,7 +248,7 @@ export function PlanEditor({ orgId, weekStart, plan, onSaved }: { orgId: string;
             ))}
           </ul>
           {newFindings(kind).map(({ f, i }) => (
-            <div key={i} className="border-t-2 border-rule-soft p-3"><FindingNote finding={f} onApply={() => applyFinding(f, i)} applyLabel="Add this task" /></div>
+            <div key={i} className="border-t border-rule-soft p-3"><FindingNote finding={f} onApply={() => applyFinding(f, i)} applyLabel="Add this task" /></div>
           ))}
         </section>
       ))}
@@ -260,7 +260,7 @@ export function PlanEditor({ orgId, weekStart, plan, onSaved }: { orgId: string;
 
       <FormError message={error} />
 
-      <div className="sticky bottom-20 z-10 flex flex-wrap items-center gap-2 rounded-2xl border-2 border-rule bg-surface p-3 shadow-[var(--shadow-label)] md:bottom-4">
+      <div className="sticky bottom-20 z-10 flex flex-wrap items-center gap-2 rounded-xl border border-rule bg-surface p-3 shadow-[var(--shadow-pop)] md:bottom-4">
         <Button variant="outline" onClick={() => saveMutation.mutate()} loading={saveMutation.isPending} disabled={busy || (!dirty && !!plan)}>
           {plan ? "Save draft" : "Create draft"}
         </Button>
@@ -294,7 +294,7 @@ function LinkedNote() {
 /** An AI finding shown in the margin of the task it's about. */
 function FindingNote({ finding, onApply, applyLabel = "Apply" }: { finding: AiFinding; onApply: () => void; applyLabel?: string }) {
   return (
-    <div className={cn("ml-0 rounded-xl border-2 border-dashed p-3 sm:ml-8", finding.severity === "must_fix" ? "border-warn bg-warn-soft/50" : "border-rule-soft bg-surface-2/40")}>
+    <div className={cn("ml-0 rounded-xl border border-dashed p-3 sm:ml-8", finding.severity === "must_fix" ? "border-warn bg-warn-soft/50" : "border-rule-soft bg-surface-2/40")}>
       <div className="flex flex-wrap items-center gap-2">
         <Lightbulb className={cn("h-4 w-4", finding.severity === "must_fix" ? "text-warn" : "text-muted")} />
         <Badge tone={finding.severity === "must_fix" ? "warn" : "neutral"}>{ISSUE_LABELS[finding.issue] ?? finding.issue}</Badge>
@@ -379,7 +379,7 @@ function AssignedPicker({ orgId, onPick, taken }: { orgId: string; onPick: (t: A
         <ul className="space-y-2">
           {available.map((t) => (
             <li key={t.id}>
-              <button onClick={() => { onPick(t); setOpen(false); }} className="flex w-full items-center justify-between gap-3 rounded-xl border-2 border-rule-soft px-3 py-2.5 text-left hover:border-rule">
+              <button onClick={() => { onPick(t); setOpen(false); }} className="flex w-full items-center justify-between gap-3 rounded-xl border border-rule-soft px-3 py-2.5 text-left hover:border-rule">
                 <span className="min-w-0">
                   <span className="block truncate font-semibold">{t.title}</span>
                   <span className="text-xs text-muted">Due {formatDateTime(t.deadline)} · {t.priority}</span>

@@ -3,6 +3,7 @@ import {
   ASSIGNED_TASK_STATUSES,
   DEADLINE_LEADS,
   INVITABLE_ROLES,
+  ISSUE_TYPES,
   LIMITS,
   ORG_ROLES,
   PRIORITIES,
@@ -98,6 +99,25 @@ export const brainDumpSchema = z.object({
 
 // -- Assigned tasks -----------------------------------------------------------
 
+/** A label is stored lower-case with dashes for spaces: "Front End" → "front-end". */
+const label = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .transform((v) => v.replace(/\s+/g, "-"))
+  .pipe(
+    z
+      .string()
+      .min(1, "Required")
+      .max(LIMITS.labelMax)
+      .regex(/^[a-z0-9][a-z0-9_-]*$/, "Labels use letters, numbers, dashes and underscores."),
+  );
+const labels = z
+  .array(label)
+  .max(LIMITS.maxLabels, `A task has at most ${LIMITS.maxLabels} labels.`)
+  .transform((all) => [...new Set(all)]);
+const storyPoints = z.number().int().min(1).max(LIMITS.storyPointsMax).nullable();
+
 export const createAssignedTaskSchema = z.object({
   title: trimmed(LIMITS.taskTitleMax),
   description: optionalText(LIMITS.assignedDescriptionMax),
@@ -105,6 +125,9 @@ export const createAssignedTaskSchema = z.object({
   teamId: uuid.nullable().optional(),
   deadline: z.iso.datetime({ offset: true }),
   priority: z.enum(PRIORITIES).default("normal"),
+  type: z.enum(ISSUE_TYPES).default("task"),
+  storyPoints: storyPoints.optional(),
+  labels: labels.default([]),
   githubRepoId: uuid.nullable().optional(),
   githubIssueNumber: z.number().int().positive().nullable().optional(),
 });
@@ -116,13 +139,33 @@ export const updateAssignedTaskSchema = z
     deadline: z.iso.datetime({ offset: true }).optional(),
     priority: z.enum(PRIORITIES).optional(),
     status: z.enum(ASSIGNED_TASK_STATUSES).optional(),
+    type: z.enum(ISSUE_TYPES).optional(),
+    storyPoints: storyPoints.optional(),
+    labels: labels.optional(),
   })
   .refine((v) => Object.values(v).some((x) => x !== undefined), "Nothing to change.");
-export const listAssignedTasksQuery = z.object({
-  scope: z.enum(["mine", "assigned_by_me", "team"]).default("mine"),
-  teamId: uuid.optional(),
-  status: z.enum(ASSIGNED_TASK_STATUSES).optional(),
-});
+export const listAssignedTasksQuery = z
+  .object({
+    scope: z.enum(["mine", "assigned_by_me", "team"]).default("mine"),
+    teamId: uuid.optional(),
+    status: z.enum(ASSIGNED_TASK_STATUSES).optional(),
+    /** Matches the title, or the key ("FLOP-42" or "42"). */
+    q: z.string().trim().max(LIMITS.taskSearchMax).optional(),
+    assigneeId: idParam.optional(),
+    type: z.enum(ISSUE_TYPES).optional(),
+    priority: z.enum(PRIORITIES).optional(),
+    label: label.optional(),
+    /** Deadline window for the calendar: from (inclusive) to (exclusive). */
+    from: z.iso.datetime({ offset: true }).optional(),
+    to: z.iso.datetime({ offset: true }).optional(),
+  })
+  .refine((v) => (v.from === undefined) === (v.to === undefined), { message: "Give both from and to.", path: ["to"] })
+  .refine((v) => !v.from || !v.to || new Date(v.from) < new Date(v.to), { message: "from must be before to.", path: ["to"] })
+  .refine(
+    (v) => !v.from || !v.to || new Date(v.to).getTime() - new Date(v.from).getTime() <= LIMITS.calendarRangeMaxDays * 86_400_000,
+    { message: `The range can be at most ${LIMITS.calendarRangeMaxDays} days.`, path: ["to"] },
+  );
+export type ListAssignedTasksQuery = z.infer<typeof listAssignedTasksQuery>;
 export const pullIntoPlanSchema = z.object({
   weekStart: mondayDate,
   kind: z.enum(["main", "sub_goal"]).default("sub_goal"),

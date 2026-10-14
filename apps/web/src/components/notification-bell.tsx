@@ -14,14 +14,14 @@ function BellButton({ count, disabled }: { count: number; disabled?: boolean }) 
   return (
     <span
       className={cn(
-        "relative grid h-10 w-10 place-items-center rounded-full border-2 border-rule bg-surface transition-colors hover:bg-surface-2",
+        "relative grid h-10 w-10 place-items-center rounded-full border border-rule bg-surface transition-colors hover:bg-surface-2",
         disabled && "opacity-60",
       )}
       aria-label={disabled ? "Notifications are not set up" : count ? `${count} unread notifications` : "Notifications"}
     >
       {disabled ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
       {count > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 grid h-5 min-w-5 place-items-center rounded-full border-2 border-rule bg-brand px-1 font-mono text-[10px] font-bold text-white">
+        <span className="absolute -top-1.5 -right-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-ink ring-2 ring-surface">
           {count > 99 ? "99+" : count}
         </span>
       )}
@@ -61,14 +61,14 @@ export function NotificationBell() {
       appearance={{
         baseTheme: isDark ? dark : undefined,
         variables: {
-          colorPrimary: isDark ? "#2dd4bf" : "#0f766e",
-          colorBackground: isDark ? "#151a21" : "#fffdf8",
-          colorForeground: isDark ? "#ede8dd" : "#1c1917",
+          colorPrimary: isDark ? "#9ba1f5" : "#2e3192",
+          colorBackground: isDark ? "#15173a" : "#ffffff",
+          colorForeground: isDark ? "#f2f3ff" : "#15162b",
           borderRadius: "12px",
           fontSize: "14px",
         },
         elements: {
-          popoverContent: "border-2 border-[var(--rule)] shadow-[4px_4px_0_0_var(--shadow-ink)] rounded-[14px]",
+          popoverContent: "border border-[var(--rule)] shadow-[var(--shadow-pop)] rounded-xl",
         },
       }}
     />

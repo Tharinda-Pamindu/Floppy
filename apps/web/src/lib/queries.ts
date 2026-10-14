@@ -3,12 +3,15 @@
 import type {
   AssignedTask,
   Conversation,
+  IssueType,
   Member,
   MeResponse,
   OrganizationDetail,
   OrganizationSummary,
   PageSummary,
   Plan,
+  Priority,
+  TaskEvent,
   Team,
 } from "@floppy/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -84,10 +87,33 @@ export function useAiStatus() {
   });
 }
 
-export function useMyTasks(orgId: string, scope: "mine" | "assigned_by_me" | "team") {
+export type TaskScope = "mine" | "assigned_by_me" | "team";
+/** What the list, board and calendar ask for: a scope plus the filter bar (and a deadline window for the calendar). */
+export interface TaskQuery {
+  scope: TaskScope;
+  q?: string;
+  assigneeId?: string;
+  type?: IssueType;
+  priority?: Priority;
+  label?: string;
+  from?: string;
+  to?: string;
+}
+
+export function useTasks(orgId: string, query: TaskQuery) {
+  const api = useApi();
+  const params = new URLSearchParams(Object.entries(query).filter((e): e is [string, string] => !!e[1]));
+  return useQuery({
+    queryKey: [...keys.tasks(orgId), "list", query],
+    queryFn: () => api<AssignedTask[]>(`/organizations/${orgId}/tasks?${params}`),
+    placeholderData: (previous) => previous,
+  });
+}
+
+export function useTaskActivity(orgId: string, taskId: string) {
   const api = useApi();
   return useQuery({
-    queryKey: [...keys.tasks(orgId), scope],
-    queryFn: () => api<AssignedTask[]>(`/organizations/${orgId}/tasks?scope=${scope}`),
+    queryKey: [...keys.tasks(orgId), taskId, "activity"],
+    queryFn: () => api<TaskEvent[]>(`/organizations/${orgId}/tasks/${taskId}/activity`),
   });
 }

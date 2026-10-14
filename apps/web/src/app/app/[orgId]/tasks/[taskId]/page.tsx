@@ -1,14 +1,16 @@
 "use client";
 
-import type { AssignedTask, AssignedTaskStatus, Priority } from "@floppy/shared";
-import { addWeeks, LIMITS, mondayOf, PRIORITIES, weekLabel } from "@floppy/shared";
+import type { AssignedTask, AssignedTaskStatus, IssueType, Priority } from "@floppy/shared";
+import { addWeeks, isOpenTaskStatus, LIMITS, mondayOf, PRIORITIES, weekLabel } from "@floppy/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarPlus, CircleCheck, ExternalLink, GitBranch, Pencil, Play, XCircle } from "lucide-react";
+import { CalendarPlus, CircleCheck, Eye, ExternalLink, GitBranch, Pencil, Play, Undo2, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 import { ThreadFor } from "@/components/chat/thread";
-import { DeadlineText, PriorityBadge, TaskStatusBadge } from "@/components/tasks/task-bits";
+import { IssueFields, parseLabels } from "@/components/tasks/issue-fields";
+import { TaskActivity } from "@/components/tasks/task-activity";
+import { DeadlineText, LabelChips, PriorityBadge, STATUS_LABEL, TaskStatusBadge, TYPE_LABEL, TypeIcon } from "@/components/tasks/task-bits";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -33,7 +35,7 @@ export default function TaskPage({ params }: { params: Promise<{ orgId: string; 
     onSuccess: (t) => {
       void queryClient.invalidateQueries({ queryKey: keys.tasks(orgId) });
       void queryClient.invalidateQueries({ queryKey: keys.plans(orgId) });
-      if (t) toast.ok(`Marked ${t.status.replace("_", " ")}.`);
+      if (t) toast.ok(`${t.key} moved to ${STATUS_LABEL[t.status]}.`);
     },
     onError: (e) => toast.error(errorMessage(e)),
   });
@@ -41,16 +43,18 @@ export default function TaskPage({ params }: { params: Promise<{ orgId: string; 
   if (task.isLoading) return <PageLoader />;
   if (task.error || !task.data) return <ErrorState error={task.error} onRetry={() => task.refetch()} notFound="This task doesn't exist, or it isn't yours to see." />;
   const t = task.data;
-  const open = t.status === "todo" || t.status === "in_progress";
+  const open = isOpenTaskStatus(t.status);
 
   return (
     <>
       <PageHeader
-        eyebrow={t.teamName ? `Task · ${t.teamName}` : "Task"}
+        eyebrow={`${t.key} · ${TYPE_LABEL[t.type]}${t.teamName ? ` · ${t.teamName}` : ""}`}
         title={t.title}
         actions={
           <>
             {t.permissions.changeStatus && t.status === "todo" && <Button variant="outline" onClick={() => setStatus.mutate("in_progress")}><Play className="h-4 w-4" />Start</Button>}
+            {t.permissions.changeStatus && t.status === "in_progress" && <Button variant="outline" onClick={() => setStatus.mutate("in_review")}><Eye className="h-4 w-4" />Send to review</Button>}
+            {t.permissions.changeStatus && t.status === "in_review" && <Button variant="ghost" onClick={() => setStatus.mutate("in_progress")}><Undo2 className="h-4 w-4" />Back to in progress</Button>}
             {t.permissions.changeStatus && open && <Button onClick={() => setStatus.mutate("done")} loading={setStatus.isPending}><CircleCheck className="h-4 w-4" />Mark done</Button>}
             {t.permissions.changeStatus && !open && t.status !== "cancelled" && <Button variant="outline" onClick={() => setStatus.mutate("in_progress")}>Reopen</Button>}
             {t.permissions.pull && <PullIntoPlan orgId={orgId} task={t} onDone={(planWeek) => router.push(`/app/${orgId}/week?week=${planWeek}`)} />}
@@ -63,6 +67,9 @@ export default function TaskPage({ params }: { params: Promise<{ orgId: string; 
           <div className="label-card grid gap-4 p-5 sm:grid-cols-2">
             <Info label="Status"><TaskStatusBadge status={t.status} /></Info>
             <Info label="Priority"><PriorityBadge priority={t.priority} /></Info>
+            <Info label="Type"><span className="flex items-center gap-2 font-semibold"><TypeIcon type={t.type} />{TYPE_LABEL[t.type]}</span></Info>
+            <Info label="Story points"><span className="font-semibold">{t.storyPoints ?? "—"}</span></Info>
+            <Info label="Labels">{t.labels.length ? <LabelChips labels={t.labels} /> : <span className="text-muted">None</span>}</Info>
             <Info label="Deadline"><div className="font-semibold">{formatDateTime(t.deadline)}</div><div className="text-xs"><DeadlineText task={t} /></div></Info>
             <Info label="Assignee"><span className="flex items-center gap-2"><Avatar person={t.assignee} size={24} />{fullName(t.assignee)}</span></Info>
             <Info label="Assigned by"><span className="flex items-center gap-2"><Avatar person={t.assignedBy} size={24} />{fullName(t.assignedBy)}</span></Info>
@@ -83,10 +90,11 @@ export default function TaskPage({ params }: { params: Promise<{ orgId: string; 
           )}
           {t.description && (
             <div className="label-card-flat p-4">
-              <h2 className="mb-2 font-mono text-xs font-bold tracking-widest text-muted uppercase">Details</h2>
+              <h2 className="mb-2 text-xs font-semibold tracking-wider text-muted uppercase">Details</h2>
               <p className="text-sm whitespace-pre-wrap">{t.description}</p>
             </div>
           )}
+          <TaskActivity orgId={orgId} taskId={t.id} />
           {t.permissions.edit && open && (
             <Button variant="ghost" className="text-danger" onClick={() => setStatus.mutate("cancelled")}><XCircle className="h-4 w-4" />Cancel this task</Button>
           )}
@@ -102,7 +110,7 @@ export default function TaskPage({ params }: { params: Promise<{ orgId: string; 
 function Info({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-1 font-mono text-[11px] font-bold tracking-widest text-muted uppercase">{label}</div>
+      <div className="mb-1 text-[11px] font-semibold tracking-wider text-muted uppercase">{label}</div>
       <div className="text-sm">{children}</div>
     </div>
   );
@@ -158,11 +166,23 @@ function EditTask({ orgId, task }: { orgId: string; task: AssignedTask }) {
   const [deadline, setDeadline] = useState(toLocalInput(task.deadline));
   const [priority, setPriority] = useState<Priority>(task.priority);
   const [assigneeId, setAssigneeId] = useState(task.assignee.id);
+  const [type, setType] = useState<IssueType>(task.type);
+  const [points, setPoints] = useState<number | null>(task.storyPoints);
+  const [labels, setLabels] = useState(task.labels.join(", "));
   const save = useMutation({
     mutationFn: () =>
       api(`/organizations/${orgId}/tasks/${task.id}`, {
         method: "PATCH",
-        json: { title, description, deadline: new Date(deadline).toISOString(), priority, ...(assigneeId !== task.assignee.id ? { assigneeId } : {}) },
+        json: {
+          title,
+          description,
+          deadline: new Date(deadline).toISOString(),
+          priority,
+          type,
+          storyPoints: points,
+          labels: parseLabels(labels),
+          ...(assigneeId !== task.assignee.id ? { assigneeId } : {}),
+        },
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: keys.tasks(orgId) });
@@ -182,6 +202,7 @@ function EditTask({ orgId, task }: { orgId: string; task: AssignedTask }) {
             <Select id="et-priority" value={priority} onChange={(e) => setPriority(e.target.value as Priority)}>{PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}</Select>
           </Field>
         </div>
+        <IssueFields idPrefix="et" type={type} onType={setType} points={points} onPoints={setPoints} labels={labels} onLabels={setLabels} />
         <Field label="Assignee" htmlFor="et-assignee" hint="Reassigning emails the new assignee.">
           <Select id="et-assignee" value={assigneeId} onChange={(e) => setAssigneeId(e.target.value)}>
             {(members.data ?? [task.assignee]).map((m) => <option key={m.id} value={m.id}>{fullName(m)}</option>)}

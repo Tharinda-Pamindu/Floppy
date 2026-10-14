@@ -3,8 +3,8 @@
  * reminder is recorded in reminder_sends first, so a reminder goes out at
  * most once no matter how often the job runs (or how many API instances run it).
  */
-import { DEADLINE_LEAD_MS, type DeadlineLead, weekLabel, zonedParts } from "@floppy/shared";
-import { and, eq, inArray, isNull, lte, or } from "drizzle-orm";
+import { DEADLINE_LEAD_MS, type DeadlineLead, OPEN_TASK_STATUSES, weekLabel, zonedParts } from "@floppy/shared";
+import { and, eq, inArray, isNull, lte } from "drizzle-orm";
 import cron from "node-cron";
 import type { Deps } from "../context.js";
 import {
@@ -102,7 +102,7 @@ export async function runDeadlineReminders(deps: Deps, now = deps.now()) {
     .leftJoin(userSettings, eq(userSettings.userId, assignedTasks.assigneeId))
     .where(
       and(
-        or(eq(assignedTasks.status, "todo"), eq(assignedTasks.status, "in_progress")),
+        inArray(assignedTasks.status, [...OPEN_TASK_STATUSES]),
         lte(assignedTasks.deadline, horizon),
         isNull(organizations.suspendedAt),
         eq(users.isActive, true),

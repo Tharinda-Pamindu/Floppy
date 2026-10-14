@@ -50,7 +50,7 @@ export default function StaffUser({ params }: { params: Promise<{ userId: string
         {u.isOwner && <Badge tone="accent">Organization owner</Badge>}
         {u.isActive ? <Badge tone="ok">Active</Badge> : <Badge tone="danger">Deactivated</Badge>}
       </div>
-      {!u.isActive && <p className="mb-6 rounded-xl border-2 border-danger bg-danger-soft px-4 py-2.5 text-sm">Deactivated accounts can&apos;t sign in, and any open sessions were ended.</p>}
+      {!u.isActive && <p className="mb-6 rounded-xl border border-danger bg-danger-soft px-4 py-2.5 text-sm">Deactivated accounts can&apos;t sign in, and any open sessions were ended.</p>}
       <h2 className="mb-2 font-display text-lg font-bold">Memberships</h2>
       <Table>
         <thead><tr><Th>Organization</Th><Th>Role</Th><Th>Joined</Th></tr></thead>

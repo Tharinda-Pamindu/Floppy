@@ -15,6 +15,7 @@ import {
 } from "../db/schema.js";
 import { AppError, conflict, forbidden, invalid, notFound } from "../errors.js";
 import { displayName, iso, loadPeople } from "./people.js";
+import { recordTaskEvents } from "./task-events.js";
 import type { UserRow } from "./sync.js";
 import { isUuid, loadTeam, requireTeamViewer, teamMembers } from "./teams.js";
 
@@ -377,6 +378,13 @@ export async function setTaskDone(deps: Deps, actor: Actor, plan: PlanRow, taskI
         .update(assignedTasks)
         .set({ status, completedAt: isDone ? now : null, updatedAt: now })
         .where(eq(assignedTasks.id, assigned.id));
+      if (status !== assigned.status) {
+        await recordTaskEvents(
+          deps.db,
+          { organizationId: assigned.organizationId, taskId: assigned.id, actorId: actor.userId },
+          [{ field: "status", from: assigned.status, to: status }],
+        );
+      }
       if (isDone && assigned.status !== "done" && assigned.assignedById) {
         await deps.notifier.trigger("task-completed", assigned.assignedById, {
           organizationId: actor.organizationId,

@@ -4,52 +4,80 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Floppy design tokens — "paper & ink".
- * Light: warm paper, ink-black type, heavy borders, a teal accent.
- * Dark: deep ink background, paper-coloured type, mint accent.
+ * Floppy design tokens — "friendly navy".
+ * Light: white pages, lavender washes, navy type and buttons, with mint,
+ * sun-yellow and rose as playful accents. Dark: deep navy with lavender.
+ * --brand is the logo orange; it stays on the logo and its loader only.
  */
 :root {
-  --paper: #f4f1ea;
-  --surface: #fffdf8;
-  --surface-2: #ebe6da;
-  --ink: #1c1917;
-  --ink-soft: #44403c;
-  --muted: #78716c;
-  --rule: #1c1917;
-  --rule-soft: #d8d2c4;
-  --accent: #0f766e;
+  --paper: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f5f6fd;
+  --ink: #15162b;
+  --ink-soft: #3d3f5c;
+  --muted: #65688a;
+  --rule: #e7e8f3;
+  --rule-soft: #f0f1f9;
+  --rule-strong: #d4d6e8;
+  --accent: #2e3192;
+  --accent-hover: #25287a;
   --accent-ink: #ffffff;
-  --accent-soft: #d5f3ee;
+  --accent-soft: #eef0fc;
+  /* Lavender: active underlines and the secondary pill button (white text passes AA). */
+  --highlight: #5f66db;
+  /* The big soft circles behind sections. */
+  --blob: #eef0fb;
+  /* Deep navy feature band; stays dark in both modes, so text on it is always light. */
+  --band: #1f2266;
+  --mint: #5fd3bf;
+  --mint-soft: #e6f8f4;
+  --sun: #f5c342;
+  --sun-soft: #fef6dc;
+  --rose: #e2588a;
   --warn: #b45309;
-  --warn-soft: #fdf0d8;
-  --danger: #b91c1c;
-  --danger-soft: #fde4e1;
-  --ok: #15803d;
-  --ok-soft: #dcf5e3;
+  --warn-soft: #fef6dc;
+  --danger: #c42343;
+  --danger-soft: #fdeef1;
+  --ok: #0b7564;
+  --ok-soft: #e6f8f4;
   --brand: #ff5722;
-  --shadow-ink: #1c1917;
+  --shadow-card: 0 1px 2px 0 rgb(46 49 146 / 0.04), 0 2px 6px 0 rgb(46 49 146 / 0.06);
+  --shadow-card-sm: 0 1px 2px 0 rgb(46 49 146 / 0.06);
+  --shadow-pop: 0 18px 40px -16px rgb(46 49 146 / 0.28), 0 6px 14px -8px rgb(46 49 146 / 0.12);
   color-scheme: light;
 }
 
 .dark {
-  --paper: #0d1015;
-  --surface: #151a21;
-  --surface-2: #1d232c;
-  --ink: #ede8dd;
-  --ink-soft: #c9c3b7;
-  --muted: #8f97a3;
-  --rule: #3a4350;
-  --rule-soft: #262d37;
-  --accent: #2dd4bf;
-  --accent-ink: #062b27;
-  --accent-soft: #0f2f2c;
+  --paper: #0e0f24;
+  --surface: #15173a;
+  --surface-2: #1c1f47;
+  --ink: #f2f3ff;
+  --ink-soft: #c9cbe8;
+  --muted: #9396bd;
+  --rule: #272a55;
+  --rule-soft: #1f2249;
+  --rule-strong: #353970;
+  --accent: #9ba1f5;
+  --accent-hover: #b7bbf8;
+  --accent-ink: #0e0f24;
+  --accent-soft: #23265a;
+  --highlight: #9ba1f5;
+  --blob: #171a40;
+  --band: #141634;
+  --mint: #5fd3bf;
+  --mint-soft: #12302d;
+  --sun: #f5c342;
+  --sun-soft: #33290f;
+  --rose: #f07aa5;
   --warn: #fbbf24;
-  --warn-soft: #2e2410;
-  --danger: #f87171;
-  --danger-soft: #331617;
-  --ok: #4ade80;
-  --ok-soft: #10291a;
-  --shadow-ink: #000000;
+  --warn-soft: #33290f;
+  --danger: #fb7185;
+  --danger-soft: #3a1522;
+  --ok: #5fd3bf;
+  --ok-soft: #12302d;
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-card-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-pop: 0 18px 44px -14px rgb(0 0 0 / 0.7), 0 6px 14px -8px rgb(0 0 0 / 0.5);
   color-scheme: dark;
 }
 
@@ -62,9 +90,19 @@
   --color-muted: var(--muted);
   --color-rule: var(--rule);
   --color-rule-soft: var(--rule-soft);
+  --color-rule-strong: var(--rule-strong);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
   --color-accent-ink: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
+  --color-highlight: var(--highlight);
+  --color-blob: var(--blob);
+  --color-band: var(--band);
+  --color-mint: var(--mint);
+  --color-mint-soft: var(--mint-soft);
+  --color-sun: var(--sun);
+  --color-sun-soft: var(--sun-soft);
+  --color-rose: var(--rose);
   --color-warn: var(--warn);
   --color-warn-soft: var(--warn-soft);
   --color-danger: var(--danger);
@@ -73,13 +111,14 @@
   --color-ok-soft: var(--ok-soft);
   --color-brand: var(--brand);
 
-  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
-  --shadow-label: 4px 4px 0 0 var(--shadow-ink);
-  --shadow-label-sm: 2px 2px 0 0 var(--shadow-ink);
-  --radius-label: 14px;
+  /* Kept under the old names so every card, button and popover picks up the look. */
+  --shadow-label: var(--shadow-card);
+  --shadow-label-sm: var(--shadow-card-sm);
+  --radius-label: 16px;
 }
 
 @layer base {
@@ -92,61 +131,59 @@
     background: var(--paper);
     color: var(--ink);
     font-family: var(--font-sans);
-    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
   }
   ::selection {
-    background: var(--accent);
-    color: var(--accent-ink);
+    background: color-mix(in oklab, var(--accent) 22%, transparent);
   }
   :focus-visible {
-    outline: 3px solid var(--accent);
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
 }
 
 @layer components {
-  /* A "disk label": the card style used across the app. */
+  /* The card style used across the app: white surface, thin border, soft shadow. */
   .label-card {
     background: var(--surface);
-    border: 2px solid var(--rule);
+    border: 1px solid var(--rule);
     border-radius: var(--radius-label);
-    box-shadow: var(--shadow-label);
+    box-shadow: var(--shadow-card);
   }
   .label-card-flat {
     background: var(--surface);
-    border: 2px solid var(--rule);
+    border: 1px solid var(--rule);
     border-radius: var(--radius-label);
   }
+  /* A faint dot grid for hero and empty-state backgrounds. */
   .paper-grid {
-    background-image:
-      linear-gradient(to right, color-mix(in oklab, var(--rule-soft) 55%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in oklab, var(--rule-soft) 55%, transparent) 1px, transparent 1px);
-    background-size: 28px 28px;
+    background-image: radial-gradient(color-mix(in oklab, var(--ink) 9%, transparent) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
   .prose-floppy {
     line-height: 1.65;
     overflow-wrap: anywhere;
   }
-  .prose-floppy h1 { font-size: 1.75rem; font-weight: 800; margin: 1.2rem 0 0.6rem; }
-  .prose-floppy h2 { font-size: 1.35rem; font-weight: 750; margin: 1.1rem 0 0.5rem; }
-  .prose-floppy h3 { font-size: 1.1rem; font-weight: 700; margin: 1rem 0 0.4rem; }
+  .prose-floppy h1 { font-size: 1.75rem; font-weight: 700; margin: 1.2rem 0 0.6rem; }
+  .prose-floppy h2 { font-size: 1.35rem; font-weight: 650; margin: 1.1rem 0 0.5rem; }
+  .prose-floppy h3 { font-size: 1.1rem; font-weight: 600; margin: 1rem 0 0.4rem; }
   .prose-floppy p { margin: 0.6rem 0; }
   .prose-floppy ul { list-style: disc; padding-left: 1.4rem; margin: 0.6rem 0; }
   .prose-floppy ol { list-style: decimal; padding-left: 1.4rem; margin: 0.6rem 0; }
   .prose-floppy li { margin: 0.2rem 0; }
   .prose-floppy a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
   .prose-floppy code { font-family: var(--font-mono); background: var(--surface-2); padding: 0.1rem 0.35rem; border-radius: 6px; font-size: 0.9em; }
-  .prose-floppy pre { background: var(--surface-2); border: 2px solid var(--rule-soft); border-radius: 10px; padding: 0.9rem; overflow-x: auto; margin: 0.8rem 0; }
+  .prose-floppy pre { background: var(--surface-2); border: 1px solid var(--rule); border-radius: 8px; padding: 0.9rem; overflow-x: auto; margin: 0.8rem 0; }
   .prose-floppy pre code { background: none; padding: 0; }
-  .prose-floppy blockquote { border-left: 4px solid var(--accent); padding: 0.2rem 0 0.2rem 0.9rem; color: var(--ink-soft); margin: 0.8rem 0; }
+  .prose-floppy blockquote { border-left: 3px solid var(--accent); padding: 0.2rem 0 0.2rem 0.9rem; color: var(--ink-soft); margin: 0.8rem 0; }
   .prose-floppy table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; display: block; overflow-x: auto; }
-  .prose-floppy th, .prose-floppy td { border: 1px solid var(--rule-soft); padding: 0.4rem 0.6rem; text-align: left; }
+  .prose-floppy th, .prose-floppy td { border: 1px solid var(--rule); padding: 0.4rem 0.6rem; text-align: left; }
   .prose-floppy th { background: var(--surface-2); }
-  .prose-floppy hr { border: 0; border-top: 2px dashed var(--rule-soft); margin: 1.2rem 0; }
+  .prose-floppy hr { border: 0; border-top: 1px solid var(--rule); margin: 1.2rem 0; }
   .prose-floppy input[type="checkbox"] { margin-right: 0.4rem; accent-color: var(--accent); }
 
   /* Slow-load loader (PageLoader → LogoLoader): the mark bobs and its corner lifts, over brand ripples. */
@@ -174,6 +211,12 @@
   }
 }
 
+/* Marketing confetti bobbing gently in place. */
+.floppy-drift { animation: floppy-drift 9s ease-in-out infinite; }
+@keyframes floppy-drift {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -8px; }
+}
 /* A tab panel arriving (TabsContent). */
 @keyframes floppy-tab-in {
   from { opacity: 0; transform: translateY(6px); }
@@ -207,6 +250,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .floppy-drift { animation: none; }
   html {
     scroll-behavior: auto;
   }

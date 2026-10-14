@@ -1,0 +1,1 @@
+ALTER TABLE "assigned_tasks" ALTER COLUMN "number" SET NOT NULL;

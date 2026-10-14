@@ -54,7 +54,7 @@ export default function PagesIndex({ params }: { params: Promise<{ orgId: string
                 {g.pages.map((p) => (
                   <li key={p.id}>
                     <PageLink orgId={orgId} page={p} />
-                    <ul className="ml-6 border-l-2 border-rule-soft pl-2">
+                    <ul className="ml-6 border-l border-rule-soft pl-2">
                       {all.filter((c) => c.parentId === p.id).map((c) => <li key={c.id}><PageLink orgId={orgId} page={c} /></li>)}
                     </ul>
                   </li>

@@ -53,6 +53,8 @@ describe("cross-organization access looks like nothing exists (404)", () => {
       ["post", `/organizations/${a.orgId}/plans/${planA}/approve`, {}],
       ["get", `/organizations/${a.orgId}/approvals`],
       ["get", `/organizations/${a.orgId}/tasks/${taskA}`],
+      ["get", `/organizations/${a.orgId}/tasks/${taskA}/activity`],
+      ["get", `/organizations/${a.orgId}/tasks?scope=team`],
       ["get", `/organizations/${a.orgId}/pages/${pageA}`],
       ["get", `/organizations/${a.orgId}/conversations`],
       ["post", `/organizations/${a.orgId}/invites`, { email: "x@example.test", role: "admin" }],
@@ -70,6 +72,7 @@ describe("cross-organization access looks like nothing exists (404)", () => {
     expect((await h.as(b.owner).get(`/organizations/${own}/plans/${planA}`)).status).toBe(404);
     expect((await h.as(b.owner).get(`/organizations/${own}/teams/${a.payments}`)).status).toBe(404);
     expect((await h.as(b.owner).get(`/organizations/${own}/tasks/${taskA}`)).status).toBe(404);
+    expect((await h.as(b.owner).get(`/organizations/${own}/tasks/${taskA}/activity`)).status).toBe(404);
     expect((await h.as(b.owner).get(`/organizations/${own}/pages/${pageA}`)).status).toBe(404);
     // Adding someone from another org to your team is refused.
     expect((await h.as(b.owner).put(`/organizations/${own}/teams/${b.payments}/members/${a.member}`).send({ isLead: false })).status).toBe(404);

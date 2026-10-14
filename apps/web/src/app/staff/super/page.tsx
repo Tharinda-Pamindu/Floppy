@@ -68,7 +68,7 @@ function StaffAccounts() {
           {created ? (
             <div className="space-y-3 text-sm">
               <p>Created <strong>{created.user.email}</strong>. Copy the password now — it won&apos;t be shown again.</p>
-              <div className="flex items-center gap-2 rounded-xl border-2 border-rule bg-surface-2 px-3 py-2 font-mono">
+              <div className="flex items-center gap-2 rounded-xl border border-rule bg-surface-2 px-3 py-2 font-mono">
                 <span className="flex-1 break-all">{created.password}</span>
                 <Button size="icon-sm" variant="ghost" aria-label="Copy password" onClick={() => navigator.clipboard.writeText(created.password).then(() => toast.ok("Copied."))}><Copy className="h-4 w-4" /></Button>
               </div>

@@ -71,7 +71,7 @@ function PageView({ orgId, pageId }: { orgId: string; pageId: string }) {
           <Badge tone={old ? "warn" : "accent"}>v{p.version}{old ? ` of ${p.currentVersion}` : ""}</Badge>
         </div>
         {old && (
-          <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border-2 border-warn bg-warn-soft px-4 py-2.5 text-sm">
+          <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-warn bg-warn-soft px-4 py-2.5 text-sm">
             You&apos;re reading version {p.version}{p.changeNote ? ` — “${p.changeNote}”` : ""}. It&apos;s read-only.
             <Link href={`/app/${orgId}/pages/${pageId}`} className="font-semibold text-accent">Go to the latest →</Link>
           </div>
@@ -81,8 +81,8 @@ function PageView({ orgId, pageId }: { orgId: string; pageId: string }) {
         </div>
         {p.children.length > 0 && (
           <div className="mt-4">
-            <h2 className="mb-2 font-mono text-xs font-bold tracking-widest text-muted uppercase">Sub-pages</h2>
-            <ul className="flex flex-wrap gap-2">{p.children.map((c) => <li key={c.id}><Link href={`/app/${orgId}/pages/${c.id}`} className="rounded-full border-2 border-rule-soft px-3 py-1 text-sm font-medium hover:border-rule">{c.title}</Link></li>)}</ul>
+            <h2 className="mb-2 text-xs font-semibold tracking-wider text-muted uppercase">Sub-pages</h2>
+            <ul className="flex flex-wrap gap-2">{p.children.map((c) => <li key={c.id}><Link href={`/app/${orgId}/pages/${c.id}`} className="rounded-full border border-rule-soft px-3 py-1 text-sm font-medium hover:border-rule">{c.title}</Link></li>)}</ul>
           </div>
         )}
       </article>

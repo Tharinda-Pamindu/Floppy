@@ -74,7 +74,7 @@ export default function EditPage({ params }: { params: Promise<{ orgId: string; 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="font-display text-2xl font-extrabold">Editing</h1>
+        <h1 className="font-display text-2xl font-bold">Editing</h1>
         <span className="font-mono text-xs text-muted">based on v{baseVersion}</span>
         <div className="ml-auto flex gap-2">
           <Button variant="ghost" onClick={() => router.push(`/app/${orgId}/pages/${pageId}`)}>Cancel</Button>

@@ -9,7 +9,7 @@ import { SlidingUnderline } from "./sliding-underline";
 export function Avatar({ person, size = 32, className }: { person: { firstName: string; lastName: string; email?: string; imageUrl?: string | null } | null; size?: number; className?: string }) {
   return (
     <span
-      className={cn("inline-grid shrink-0 place-items-center overflow-hidden rounded-full border-2 border-rule bg-accent-soft font-mono text-[11px] font-bold text-ink", className)}
+      className={cn("inline-grid shrink-0 place-items-center overflow-hidden rounded-full border border-rule bg-accent-soft text-[11px] font-semibold text-accent", className)}
       style={{ width: size, height: size }}
       aria-hidden
     >
@@ -31,9 +31,9 @@ export function Switch({ checked, onCheckedChange, disabled, label, id }: { chec
       onCheckedChange={onCheckedChange}
       disabled={disabled}
       aria-label={label}
-      className="relative h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-rule bg-surface-2 transition-colors data-[state=checked]:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+      className="relative h-5 w-9 shrink-0 cursor-pointer rounded-full bg-rule-strong transition-colors data-[state=checked]:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
     >
-      <RSwitch.Thumb className="block h-4 w-4 translate-x-0.5 rounded-full border-2 border-rule bg-surface transition-transform data-[state=checked]:translate-x-[22px]" />
+      <RSwitch.Thumb className="block h-4 w-4 translate-x-0.5 rounded-full bg-white shadow-[var(--shadow-card)] transition-transform data-[state=checked]:translate-x-[18px]" />
     </RSwitch.Root>
   );
 }
@@ -43,7 +43,7 @@ export function TabsList({ className, children, ...props }: ComponentProps<typeo
   const ref = useRef<HTMLDivElement>(null);
   // The rule is an inset shadow, not a border, so the active underline paints over it without overflowing (which showed a scrollbar).
   return (
-    <RTabs.List ref={ref} className={cn("scrollbar-none relative mb-5 flex gap-1 overflow-x-auto shadow-[inset_0_-2px_0_var(--rule-soft)]", className)} {...props}>
+    <RTabs.List ref={ref} className={cn("scrollbar-none relative mb-5 flex gap-1 overflow-x-auto shadow-[inset_0_-1px_0_var(--rule)]", className)} {...props}>
       {children}
       <SlidingUnderline container={ref} selector='[role="tab"][data-state="active"]' />
     </RTabs.List>
@@ -54,7 +54,7 @@ export function TabsTrigger({ className, ...props }: ComponentProps<typeof RTabs
   return (
     <RTabs.Trigger
       className={cn(
-        "shrink-0 border-b-[3px] border-transparent px-3 py-2 text-sm font-semibold text-muted transition-colors hover:text-ink data-[state=active]:text-ink",
+        "shrink-0 border-b-2 border-transparent px-3 py-2 text-[13px] font-semibold text-muted transition-colors hover:text-ink data-[state=active]:text-ink",
         className,
       )}
       {...props}
@@ -71,7 +71,7 @@ export function Menu({ trigger, children, align = "end" }: { trigger: ReactNode;
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>{trigger}</DropdownMenu.Trigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.Content align={align} sideOffset={6} className="label-card z-50 min-w-48 p-1.5">
+        <DropdownMenu.Content align={align} sideOffset={6} className="label-card z-50 min-w-48 p-1 shadow-[var(--shadow-pop)]">
           {children}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
@@ -98,13 +98,13 @@ export function MenuItem({ children, onSelect, href, danger, disabled }: { child
   );
 }
 
-export const MenuSeparator = () => <DropdownMenu.Separator className="my-1 h-0.5 bg-rule-soft" />;
+export const MenuSeparator = () => <DropdownMenu.Separator className="my-1 h-px bg-rule" />;
 
 export function Stat({ label, value, hint, tone }: { label: string; value: ReactNode; hint?: ReactNode; tone?: "accent" | "warn" | "danger" }) {
   return (
     <div className="label-card-flat px-4 py-3">
-      <div className="font-mono text-[11px] font-semibold tracking-widest text-muted uppercase">{label}</div>
-      <div className={cn("mt-1 font-display text-3xl font-extrabold", tone === "accent" && "text-accent", tone === "warn" && "text-warn", tone === "danger" && "text-danger")}>{value}</div>
+      <div className="text-xs font-medium text-muted">{label}</div>
+      <div className={cn("mt-1 font-display text-2xl font-semibold tracking-tight", tone === "accent" && "text-accent", tone === "warn" && "text-warn", tone === "danger" && "text-danger")}>{value}</div>
       {hint && <div className="mt-0.5 text-xs text-ink-soft">{hint}</div>}
     </div>
   );
@@ -118,7 +118,7 @@ export function Table({ children, className }: { children: ReactNode; className?
   );
 }
 export function Th({ children, className }: { children?: ReactNode; className?: string }) {
-  return <th className={cn("border-b-2 border-rule bg-surface-2 px-3 py-2.5 text-left font-mono text-[11px] font-semibold tracking-wider text-ink-soft uppercase", className)}>{children}</th>;
+  return <th className={cn("border-b border-rule bg-surface-2 px-3 py-2.5 text-left text-xs font-medium text-muted", className)}>{children}</th>;
 }
 export function Td({ children, className }: { children?: ReactNode; className?: string }) {
   return <td className={cn("border-b border-rule-soft px-3 py-2.5 align-middle", className)}>{children}</td>;
