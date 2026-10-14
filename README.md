@@ -235,4 +235,4 @@ Floppy is free software: you can redistribute it and/or modify it under the term
 
 Floppy is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
 
-If you run a modified version of Floppy for other people to use over a network, the AGPL requires you to offer them the source code of your version. The site footer's **Source code** link does this for the original project.
+If you run a modified version of Floppy for other people to use over a network, the AGPL requires you to offer them the source code of your version.

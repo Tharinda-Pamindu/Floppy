@@ -1,0 +1,68 @@
+name: Bug report
+description: Something in Floppy doesn't work the way it should.
+title: "Bug: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. **Security problems go through private reporting instead** (see SECURITY.md), never a public issue.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What went wrong, and what did you expect to happen instead?
+      placeholder: When I drag a task to another day on the calendar, it jumps back and nothing is saved.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps, starting from a page someone else can open.
+      placeholder: |
+        1. Sign in as a team lead
+        2. Open Calendar
+        3. Drag a task from Monday to Tuesday
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Weekly plans and approvals
+        - Tasks, board or calendar
+        - Teams and organization settings
+        - Chat
+        - Pages (wiki)
+        - Notifications (in-app, email, SMS)
+        - Sign-in and accounts
+        - GitHub integration
+        - AI plan review
+        - Staff console
+        - Home page
+        - Setup, build or tests
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and operating system
+      placeholder: Chrome 131 on Windows 11
+  - type: textarea
+    id: logs
+    attributes:
+      label: Errors or logs
+      description: Browser console errors or API log lines, if you have them. **Remove tokens, passwords and personal data first.**
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you submit
+      options:
+        - label: I searched the existing issues and this hasn't been reported.
+          required: true
+        - label: I removed secrets and other people's private data from this report.
+          required: true

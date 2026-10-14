@@ -1,0 +1,28 @@
+name: Ask a maintainer to contact me privately
+description: For a conduct or accessibility concern you'd rather not describe in public. Don't include any details here.
+title: "Please contact me privately"
+labels: ["private-contact"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Don't write any details in this issue: it's public.** A maintainer will reach out to you privately on GitHub and then close it.
+
+        For a security problem, use private vulnerability reporting instead (see SECURITY.md).
+  - type: dropdown
+    id: topic
+    attributes:
+      label: What is it about?
+      options:
+        - Code of Conduct
+        - Accessibility
+        - Something else
+    validations:
+      required: true
+  - type: checkboxes
+    id: no-details
+    attributes:
+      label: Before you submit
+      options:
+        - label: I haven't written any private details in this issue.
+          required: true

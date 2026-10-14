@@ -1,0 +1,43 @@
+name: Feature request
+description: Suggest an idea or an improvement for Floppy.
+title: "Feature: "
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation first, not the solution. Who runs into it, and how often?
+      placeholder: As a team lead I can't see which tasks are blocked until someone mentions it in chat.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: What would you like to happen?
+      placeholder: A "Blocked" flag on tasks that shows on the board and in the lead's weekly view.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      description: Workarounds you use today, or other ways to solve it.
+  - type: dropdown
+    id: who
+    attributes:
+      label: Who is it for?
+      multiple: true
+      options:
+        - Engineers (members)
+        - Team leads
+        - Organization owners and admins
+        - Platform staff
+        - People self-hosting Floppy
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you submit
+      options:
+        - label: I searched the existing issues and this hasn't been suggested.
+          required: true
