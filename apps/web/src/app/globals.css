@@ -85,6 +85,8 @@
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
+    /* In-page links (#week, #features…) glide. Next.js turns this off during route changes (data-scroll-behavior in layout.tsx). */
+    scroll-behavior: smooth;
   }
   body {
     background: var(--paper);
@@ -146,9 +148,71 @@
   .prose-floppy th { background: var(--surface-2); }
   .prose-floppy hr { border: 0; border-top: 2px dashed var(--rule-soft); margin: 1.2rem 0; }
   .prose-floppy input[type="checkbox"] { margin-right: 0.4rem; accent-color: var(--accent); }
+
+  /* Slow-load loader (PageLoader → LogoLoader): the mark bobs and its corner lifts, over brand ripples. */
+  .floppy-loader { animation: floppy-loader-in 0.35s ease-out both; }
+  .floppy-loader-mark { animation: floppy-bob 2.4s ease-in-out infinite; }
+  .floppy-loader-fold { transform-box: fill-box; animation: floppy-fold 2.4s ease-in-out infinite; }
+  .floppy-loader-shadow {
+    height: 6px;
+    width: 44px;
+    border-radius: 9999px;
+    background: var(--ink);
+    opacity: 0.16;
+    animation: floppy-shadow 2.4s ease-in-out infinite;
+  }
+  .floppy-loader-ring {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    height: 72px;
+    width: 72px;
+    border-radius: 9999px;
+    border: 2px solid var(--brand);
+    opacity: 0;
+    animation: floppy-ripple 3s ease-out infinite;
+  }
+}
+
+/* A tab panel arriving (TabsContent). */
+@keyframes floppy-tab-in {
+  from { opacity: 0; transform: translateY(6px); }
+}
+@keyframes floppy-loader-in {
+  from { opacity: 0; transform: scale(0.92); }
+}
+@keyframes floppy-bob {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-10px) rotate(4deg); }
+}
+@keyframes floppy-fold {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(3px, -3px); }
+}
+@keyframes floppy-shadow {
+  0%, 100% { transform: scaleX(1); opacity: 0.16; }
+  50% { transform: scaleX(0.65); opacity: 0.07; }
+}
+@keyframes floppy-ripple {
+  0% { transform: scale(0.7); opacity: 0.45; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+
+/* Tab bars and nav strips still scroll sideways on narrow screens, without a visible bar. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  /* The loader's mark stands still and the ripples go away. */
+  .floppy-loader-mark, .floppy-loader-fold, .floppy-loader-shadow { animation: none; }
+  .floppy-loader-ring { display: none; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;

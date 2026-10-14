@@ -1,7 +1,7 @@
-# Source project analysis: Floppy (Launchbase build)
+# Source project analysis: Floppy
 
-Source: `d:\Intern\launchbase`, read-only. This file records what the original
-project does, so the rebuild in this folder can keep the same behavior.
+This file records what the original version of Floppy does, so the rebuild in
+this folder can keep the same behavior.
 
 ## 1. What the product is
 

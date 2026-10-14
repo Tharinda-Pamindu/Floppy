@@ -8,7 +8,12 @@ const apps = [
   ["web", "@floppy/web", "\x1b[35m"],
 ];
 const children = apps.map(([name, workspace, color]) => {
-  const child = spawn(isWin ? "npm.cmd" : "npm", ["run", "dev", "-w", workspace], { shell: isWin, env: process.env });
+  // stdin is ignored: `tsx watch` stalls before starting the API when stdin is an open pipe it never reads.
+  const child = spawn(isWin ? "npm.cmd" : "npm", ["run", "dev", "-w", workspace], {
+    shell: isWin,
+    env: process.env,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
   const prefix = `${color}[${name}]\x1b[0m `;
   const pipe = (stream, out) =>
     stream.on("data", (chunk) => out.write(chunk.toString().split(/\r?\n/).filter(Boolean).map((l) => prefix + l).join("\n") + "\n"));

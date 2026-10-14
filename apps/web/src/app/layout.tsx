@@ -12,17 +12,17 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: "Floppy · Less strain. More brain.", template: "%s · Floppy" },
+  title: { default: "Floppy", template: "%s · Floppy" },
   description:
     "Floppy gets every engineer on your team to commit to one thing they'll ship this week, reviewed before you approve it, so by Friday you know what actually shipped.",
   openGraph: {
     type: "website",
     siteName: "Floppy",
-    title: "Floppy · Less strain. More brain.",
+    title: "Floppy",
     description: "Weekly planning for software teams: one main thing to ship, approved by your lead, tracked to Friday.",
     url: siteUrl,
   },
-  twitter: { card: "summary_large_image", title: "Floppy · Less strain. More brain." },
+  twitter: { card: "summary_large_image", title: "Floppy" },
 };
 
 export const viewport: Viewport = {
@@ -36,7 +36,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${display.variable} ${body.variable} ${mono.variable}`}>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className="min-h-dvh antialiased">
         <Providers>{children}</Providers>
       </body>

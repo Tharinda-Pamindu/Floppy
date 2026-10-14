@@ -406,7 +406,7 @@ async function main() {
       operation: i % 3 === 0 ? "plan_draft" : "plan_review",
       outcome,
       errorKind,
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
       latencyMs: 900 + ((i * 137) % 2400),
       inputTokens: outcome === "succeeded" ? 700 + i * 11 : null,
       outputTokens: outcome === "succeeded" ? 300 + i * 7 : null,

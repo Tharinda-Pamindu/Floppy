@@ -24,13 +24,13 @@ Set these in `apps/api/.env` and restart the API:
 
 | Provider | `AI_BASE_URL` | `AI_MODEL` (example) |
 | --- | --- | --- |
-| Groq | `https://api.groq.com/openai/v1` | `llama-3.3-70b-versatile` |
+| Groq | `https://api.groq.com/openai/v1` | `openai/gpt-oss-120b` |
 | xAI (Grok) | `https://api.x.ai/v1` | `grok-3-mini` |
 
 ```
 AI_API_KEY=…
 AI_BASE_URL=https://api.groq.com/openai/v1
-AI_MODEL=llama-3.3-70b-versatile
+AI_MODEL=openai/gpt-oss-120b
 ```
 
 ## Design

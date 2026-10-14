@@ -5,9 +5,10 @@ import type { MeResponse } from "@floppy/shared";
 import { ArrowLeft, Building2, Cpu, Gauge, KeyRound, ShieldAlert, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { type ReactNode, useRef } from "react";
 import { Logo } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { SlidingUnderline } from "@/components/ui/sliding-underline";
 import { cn } from "@/lib/utils";
 
 export function StaffShell({ me, children }: { me: MeResponse; children: ReactNode }) {
@@ -20,6 +21,7 @@ export function StaffShell({ me, children }: { me: MeResponse; children: ReactNo
     // The super-admin page isn't even linked for anyone else.
     ...(me.platformRole === "superadmin" ? [{ href: "/staff/super", label: "Super admin", Icon: KeyRound }] : []),
   ];
+  const navRef = useRef<HTMLElement>(null);
   const active = (href: string, exact?: boolean) => (exact ? pathname === href : pathname.startsWith(href));
   return (
     <div className="min-h-dvh">
@@ -36,13 +38,14 @@ export function StaffShell({ me, children }: { me: MeResponse; children: ReactNo
             <UserButton />
           </div>
         </div>
-        <nav aria-label="Staff sections" className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-3">
+        <nav ref={navRef} aria-label="Staff sections" className="scrollbar-none relative mx-auto flex max-w-7xl gap-1 overflow-x-auto px-3">
           {nav.map(({ href, label, Icon, exact }) => (
             <Link key={href} href={href} aria-current={active(href, exact) ? "page" : undefined}
-              className={cn("-mb-[2px] flex shrink-0 items-center gap-2 border-b-[3px] px-3 py-2.5 text-sm font-semibold", active(href, exact) ? "border-brand text-ink" : "border-transparent text-muted hover:text-ink")}>
+              className={cn("flex shrink-0 items-center gap-2 border-b-[3px] border-transparent px-3 py-2.5 text-sm font-semibold", active(href, exact) ? "text-ink" : "text-muted hover:text-ink")}>
               <Icon className="h-4 w-4" />{label}
             </Link>
           ))}
+          <SlidingUnderline container={navRef} selector='[aria-current="page"]' className="bg-brand" />
         </nav>
       </header>
       <main className="mx-auto max-w-7xl px-4 py-6 md:py-8">{children}</main>

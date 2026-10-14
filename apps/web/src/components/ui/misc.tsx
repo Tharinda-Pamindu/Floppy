@@ -2,8 +2,9 @@
 
 import { DropdownMenu, Switch as RSwitch, Tabs as RTabs } from "radix-ui";
 import Link from "next/link";
-import type { ComponentProps, ReactNode } from "react";
+import { type ComponentProps, type ReactNode, useRef } from "react";
 import { cn, initials } from "@/lib/utils";
+import { SlidingUnderline } from "./sliding-underline";
 
 export function Avatar({ person, size = 32, className }: { person: { firstName: string; lastName: string; email?: string; imageUrl?: string | null } | null; size?: number; className?: string }) {
   return (
@@ -38,21 +39,32 @@ export function Switch({ checked, onCheckedChange, disabled, label, id }: { chec
 }
 
 export const Tabs = RTabs.Root;
-export function TabsList({ className, ...props }: ComponentProps<typeof RTabs.List>) {
-  return <RTabs.List className={cn("mb-5 flex gap-1 overflow-x-auto border-b-2 border-rule-soft", className)} {...props} />;
+export function TabsList({ className, children, ...props }: ComponentProps<typeof RTabs.List>) {
+  const ref = useRef<HTMLDivElement>(null);
+  // The rule is an inset shadow, not a border, so the active underline paints over it without overflowing (which showed a scrollbar).
+  return (
+    <RTabs.List ref={ref} className={cn("scrollbar-none relative mb-5 flex gap-1 overflow-x-auto shadow-[inset_0_-2px_0_var(--rule-soft)]", className)} {...props}>
+      {children}
+      <SlidingUnderline container={ref} selector='[role="tab"][data-state="active"]' />
+    </RTabs.List>
+  );
 }
 export function TabsTrigger({ className, ...props }: ComponentProps<typeof RTabs.Trigger>) {
+  // The transparent border keeps the height; the visible underline is TabsList's SlidingUnderline.
   return (
     <RTabs.Trigger
       className={cn(
-        "-mb-[2px] shrink-0 border-b-[3px] border-transparent px-3 py-2 text-sm font-semibold text-muted transition-colors hover:text-ink data-[state=active]:border-accent data-[state=active]:text-ink",
+        "shrink-0 border-b-[3px] border-transparent px-3 py-2 text-sm font-semibold text-muted transition-colors hover:text-ink data-[state=active]:text-ink",
         className,
       )}
       {...props}
     />
   );
 }
-export const TabsContent = RTabs.Content;
+/** A tab's panel; it fades and rises in each time its tab becomes active. */
+export function TabsContent({ className, ...props }: ComponentProps<typeof RTabs.Content>) {
+  return <RTabs.Content className={cn("data-[state=active]:animate-[floppy-tab-in_0.28s_ease-out]", className)} {...props} />;
+}
 
 export function Menu({ trigger, children, align = "end" }: { trigger: ReactNode; children: ReactNode; align?: "start" | "end" }) {
   return (

@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, useTheme } from "next-themes";
 import { useState, type ReactNode } from "react";
 import { ApiError } from "@/lib/api";
+import { SmoothScroll } from "./smooth-scroll";
 import { ToastProvider } from "./ui/toast";
 
 function ClerkWithTheme({ children }: { children: ReactNode }) {
@@ -56,7 +57,9 @@ export function Providers({ children }: { children: ReactNode }) {
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <ClerkWithTheme>
         <QueryClientProvider client={queryClient}>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <SmoothScroll>{children}</SmoothScroll>
+          </ToastProvider>
         </QueryClientProvider>
       </ClerkWithTheme>
     </ThemeProvider>

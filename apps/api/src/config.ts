@@ -39,7 +39,7 @@ const schema = z.object({
   /** AI is on hold: leave AI_API_KEY empty and the AI features stay hidden. */
   AI_API_KEY: z.string().optional(),
   AI_BASE_URL: z.url().default("https://api.groq.com/openai/v1"),
-  AI_MODEL: z.string().default("llama-3.3-70b-versatile"),
+  AI_MODEL: z.string().default("openai/gpt-oss-120b"),
   AI_TIMEOUT_SECONDS: z.coerce.number().positive().default(30),
   AI_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(6),
 

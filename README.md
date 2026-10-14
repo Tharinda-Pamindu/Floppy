@@ -122,7 +122,7 @@ The workflow catalogue is in [docs/NOTIFICATIONS.md](docs/NOTIFICATIONS.md).
 
 - **GitHub.** Public repositories work with no setup. For private repositories, or more than 60 GitHub calls an hour, create a fine-grained token with *Issues: read* and *Metadata: read* and set `GITHUB_TOKEN`.
 - **AI (on hold).** With `AI_API_KEY` empty, the AI buttons are hidden and the AI endpoints return 503, while planning works normally. To switch it on, set `AI_API_KEY`, `AI_BASE_URL` and `AI_MODEL`:
-  - Groq: `https://api.groq.com/openai/v1` with a model such as `llama-3.3-70b-versatile`.
+  - Groq: `https://api.groq.com/openai/v1` with a model such as `openai/gpt-oss-120b`.
   - xAI: `https://api.x.ai/v1` with a model such as `grok-3-mini`.
 
   See [docs/AI.md](docs/AI.md).

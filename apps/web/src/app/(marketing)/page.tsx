@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: { absolute: "Floppy · Less strain. More brain." },
+  title: { absolute: "Floppy" },
   description: BRAND.pitch,
 };
 

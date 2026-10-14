@@ -30,10 +30,12 @@ function AcceptInvite() {
       </div>
     );
   }
+  // Hash routing keeps Clerk's later steps (password, verification) in the URL
+  // hash, so the ticket and status query params above survive every step.
   return status === "sign_in" ? (
-    <SignIn path="/accept-invite" routing="path" forceRedirectUrl="/app" />
+    <SignIn routing="hash" forceRedirectUrl="/app" />
   ) : (
-    <SignUp path="/accept-invite" routing="path" forceRedirectUrl="/app" />
+    <SignUp routing="hash" forceRedirectUrl="/app" />
   );
 }
 

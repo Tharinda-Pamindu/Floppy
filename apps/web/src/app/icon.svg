@@ -1,17 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 10 44 44" role="img" aria-label="Launchbase">
-  <!--
-    Launchbase favicon — the Pad mark, tight-cropped (2u margin).
-    Theme-aware: ink dome on light tabs, paper dome on dark tabs;
-    the Flame pad steps one shade lighter on dark.
-  -->
-  <style>
-    .dome { fill: #0A0A0A; }
-    .pad  { fill: #FF4F1F; }
-    @media (prefers-color-scheme: dark) {
-      .dome { fill: #FAFAFA; }
-      .pad  { fill: #FF6A3D; }
-    }
-  </style>
-  <path class="dome" d="M12 35 A20 20 0 0 1 52 35 Z"/>
-  <rect class="pad" x="12" y="43" width="40" height="7" rx="3.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-14 -4 128 128" role="img" aria-label="Floppy">
+  <!-- Floppy favicon: the mark from /public/floppy-mark.svg, centred in a
+       square. The F is a hole, so it reads on light and dark tabs alike. -->
+  <defs>
+    <mask id="floppy-f">
+      <rect x="-14" y="-4" width="128" height="128" fill="#fff"/>
+      <path fill="#000" d="M23 126V66A17 17 0 0 1 40 49H80.5A1.5 1.5 0 0 1 81.6 51.5L71 64H40A10 10 0 0 0 30 74V77H58A8 8 0 0 1 58 93H40A10 10 0 0 0 30 103V126Z"/>
+    </mask>
+  </defs>
+  <g fill="#FF5722">
+    <path mask="url(#floppy-f)" d="M25 0H61V26A13 13 0 0 0 74 39H100V82Q100 99 84 105L30 120H25A25 25 0 0 1 0 95V25A25 25 0 0 1 25 0Z"/>
+    <path d="M66 1V23A12 12 0 0 0 78 35H100Z"/>
+  </g>
 </svg>

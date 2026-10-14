@@ -20,13 +20,14 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { createContext, useContext, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, type ReactNode } from "react";
 import { useApprovals, useConversations, useMe, useOrgs } from "@/lib/queries";
 import { cn, LAST_ORG_KEY } from "@/lib/utils";
 import { Logo } from "./brand";
 import { NotificationBell } from "./notification-bell";
 import { ThemeToggle } from "./theme-toggle";
 import { Menu, MenuItem, MenuSeparator } from "./ui/misc";
+import { SlidingUnderline } from "./ui/sliding-underline";
 
 const OrgContext = createContext<OrganizationDetail | null>(null);
 export function useOrgContext() {
@@ -64,6 +65,7 @@ export function AppShell({ org, children }: { org: OrganizationDetail; children:
     { href: `${base}/settings`, label: "Organization", Icon: Settings },
   ];
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const sectionsRef = useRef<HTMLElement>(null);
   const mobilePrimary = nav.filter((n) => ["My week", "Tasks", "Chat", "Teams"].includes(n.label));
   const mobileMore = nav.filter((n) => !mobilePrimary.includes(n));
 
@@ -80,15 +82,15 @@ export function AppShell({ org, children }: { org: OrganizationDetail; children:
               <AccountMenu orgId={org.id} />
             </div>
           </div>
-          <nav aria-label="Sections" className="mx-auto hidden max-w-7xl gap-1 overflow-x-auto px-3 md:flex">
+          <nav ref={sectionsRef} aria-label="Sections" className="scrollbar-none relative mx-auto hidden max-w-7xl gap-1 overflow-x-auto px-3 md:flex">
             {nav.map(({ href, label, Icon, badge }) => (
               <Link
                 key={href}
                 href={href}
                 aria-current={isActive(href) ? "page" : undefined}
                 className={cn(
-                  "-mb-[2px] flex shrink-0 items-center gap-2 border-b-[3px] px-3 py-2.5 text-sm font-semibold transition-colors",
-                  isActive(href) ? "border-accent text-ink" : "border-transparent text-muted hover:text-ink",
+                  "flex shrink-0 items-center gap-2 border-b-[3px] border-transparent px-3 py-2.5 text-sm font-semibold transition-colors",
+                  isActive(href) ? "text-ink" : "text-muted hover:text-ink",
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -96,6 +98,7 @@ export function AppShell({ org, children }: { org: OrganizationDetail; children:
                 {!!badge && <span className="rounded-full bg-brand px-1.5 font-mono text-[10px] font-bold text-white">{badge}</span>}
               </Link>
             ))}
+            <SlidingUnderline container={sectionsRef} selector='[aria-current="page"]' />
           </nav>
         </header>
 
