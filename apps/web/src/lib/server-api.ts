@@ -2,7 +2,7 @@ import "server-only";
 import { auth } from "@clerk/nextjs/server";
 import type { MeResponse } from "@floppy/shared";
 
-const PUBLIC_API_URL = (process.env.NEXT_PUBLIC_API_URL ?? (process.env.NODE_ENV === "production" ? "/api" : "http://localhost:4000"));
+const PUBLIC_API_URL = process.env.NODE_ENV === "production" ? "/api" : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000");
 
 // Server-side fetch requires an absolute URL. In a single dyno, use its own port.
 const API_URL = PUBLIC_API_URL.startsWith("/")

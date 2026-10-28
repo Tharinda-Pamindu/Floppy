@@ -11,7 +11,7 @@ Open Settings > Reveal Config Vars. All frontend and API settings belong on this
 | Variable | Production value |
 | --- | --- |
 | NODE_ENV | production |
-| NEXT_PUBLIC_API_URL | /api |
+| NEXT_PUBLIC_API_URL | Not needed in production; /api is enforced by the single-app build |
 | NEXT_PUBLIC_SITE_URL | https://floppy.builtbytharinda.tech |
 | WEB_ORIGIN | https://floppy.builtbytharinda.tech |
 | API_PUBLIC_URL | https://floppy.builtbytharinda.tech |
@@ -26,7 +26,7 @@ Open Settings > Reveal Config Vars. All frontend and API settings belong on this
 | NEXT_PUBLIC_CLERK_SIGN_IN_URL | /sign-in |
 | NEXT_PUBLIC_CLERK_SIGN_UP_URL | /sign-up |
 
-Replace an existing NEXT_PUBLIC_API_URL=http://localhost:4000 with /api. The production fallback is also /api, but an explicitly set old URL takes precedence. Next.js embeds NEXT_PUBLIC_* values during build: rebuild after changing them. Set NEXT_PUBLIC_SITE_URL so the CSP explicitly permits the site's secure WebSocket origin.
+Production API requests always use /api on the current website. NEXT_PUBLIC_API_URL only selects the separate API server during local development; old Heroku values are ignored. Deploy this updated code to replace previously built browser bundles. Next.js embeds NEXT_PUBLIC_* values during build: rebuild after changing them. Set NEXT_PUBLIC_SITE_URL so the CSP explicitly permits the site's secure WebSocket origin.
 
 Runtime database access can use Supabase's transaction pooler on port 6543. Migrations require a direct/session connection (5432); use the session pooler when the direct host is unreachable. DATABASE_MIGRATION_URL falls back to DATABASE_URL. Never commit database URLs or keys.
 
