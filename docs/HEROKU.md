@@ -67,6 +67,25 @@ Heroku supplies PORT; do not set it yourself. Keep the buildpack's default insta
 - Point the Clerk webhook to `https://YOUR-ACTUAL-API-HOST/webhooks/clerk`, select the events listed in the README, and put the signing secret on the API app.
 - If using Novu, publish workflows after the API is live. Its bridge URL is `https://YOUR-ACTUAL-API-HOST/api/novu`. See notification setup in the README. The compiled sync command is `heroku run "node apps/api/dist/scripts/novu-sync.js" --app YOUR-API-APP`.
 
+
+### Clerk production on floppy.builtbytharinda.tech
+
+The production website origin is `https://floppy.builtbytharinda.tech`.
+
+1. Create or select the production instance in Clerk. Enter `floppy.builtbytharinda.tech` as the application domain and complete its deployment checklist.
+2. Copy the exact DNS records shown in Clerk into Cloudflare. Keep Clerk verification CNAMEs DNS-only (not proxied); their targets are instance-specific. Keep the existing website CNAME pointing to Heroku.
+3. Set the web app's `NEXT_PUBLIC_SITE_URL=https://floppy.builtbytharinda.tech`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...`, and `CLERK_SECRET_KEY=sk_live_...`.
+4. On the API app, set `WEB_ORIGIN=https://floppy.builtbytharinda.tech`, `CLERK_PUBLISHABLE_KEY` to the same production publishable key, and `CLERK_SECRET_KEY` to the same production secret key.
+5. Set the web app's `NEXT_PUBLIC_API_URL` to the public HTTPS API origin, not localhost or the frontend URL. Keep `API_PUBLIC_URL` on the API app aligned with its public origin.
+6. In the production Clerk instance, configure the required authentication providers and Organizations, and create the webhook endpoint at the API's `/webhooks/clerk`. Set its new signing secret as `CLERK_WEBHOOK_SIGNING_SECRET` on the API app.
+7. Complete Clerk DNS/certificate setup, then rebuild and redeploy the frontend with the production keys. A restart alone does not replace values embedded in the browser bundle.
+
+The Next.js CSP derives the exact Clerk Frontend API hostname from `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and allows Clerk's required protection hosts. No separate Clerk hostname variable is needed. The Frontend API hostname is determined by the production instance; do not guess it from the website hostname.
+
+Development users and organizations do not automatically appear in the production instance. Floppy database rows reference Clerk IDs, so use a deliberate data migration if development data must be retained.
+
+Reference: [Clerk production deployment](https://clerk.com/docs/guides/development/deployment/production), [Clerk CSP requirements](https://clerk.com/docs/guides/secure/best-practices/csp-headers).
+
 ## 4. Commit and deploy
 
 Commit the configuration changes, then push the same commit to both apps, API first:
