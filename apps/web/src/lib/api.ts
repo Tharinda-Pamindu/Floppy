@@ -4,7 +4,7 @@ import { useAuth } from "@clerk/nextjs";
 import type { ApiErrorBody } from "@floppy/shared";
 import { useCallback } from "react";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? (process.env.NODE_ENV === "production" ? "/api" : "http://localhost:4000"));
 
 /** A non-2xx answer from the API, in plain words. */
 export class ApiError extends Error {

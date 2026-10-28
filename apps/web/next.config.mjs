@@ -1,6 +1,9 @@
-const api = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-const apiWs = api.replace(/^http/, "ws");
 const isDev = process.env.NODE_ENV !== "production";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? (isDev ? "http://localhost:4000" : "/api");
+// CSP sources must be origins, not the /api path used for HTTP requests.
+const api = apiUrl.startsWith("/") ? "" : new URL(apiUrl).origin;
+const site = process.env.NEXT_PUBLIC_SITE_URL;
+const apiWs = (api || (site ? new URL(site).origin : "")).replace(/^http/, "ws");
 
 // Clerk publishable keys encode "<frontend-api-host>$". Use the selected
 // instance's exact host for both development and production CSPs.

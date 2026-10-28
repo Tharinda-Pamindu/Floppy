@@ -10,7 +10,7 @@
 
 ![Floppy's home page: "Less strain. More brain." above a group of teammates celebrating a completed week](docs/images/home.png)
 
-Deploy to Heroku: follow [the deployment guide](docs/HEROKU.md) for frontend/API setup, config vars, and database migrations.
+Deploy to Heroku: follow [the deployment guide](docs/HEROKU.md) to run the frontend and API together in one app, with config vars and database migrations.
 
 ## Features
 
