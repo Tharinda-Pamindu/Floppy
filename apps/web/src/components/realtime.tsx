@@ -20,7 +20,7 @@ export function RealtimeProvider({ orgId, children }: { orgId: string; children:
 
   useEffect(() => {
     if (!isSignedIn) return;
-    const s = io(API_URL, {
+    const s = io(new URL(API_URL, window.location.origin).origin, {
       transports: ["websocket"],
       // A fresh token on every (re)connect.
       auth: (cb) => {

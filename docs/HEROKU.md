@@ -1,126 +1,65 @@
-# Deploy Floppy to Heroku
+# Deploy Floppy as one Heroku app
 
-Deploy the repository root to **two Heroku apps**: one Next.js frontend and one Express API. Each gets its own public URL and web dyno. If the API is already hosted elsewhere, deploy only the frontend and set NEXT_PUBLIC_API_URL to its existing URL.
+The repository now builds the Next.js frontend and Express API together. One Node process serves both on Heroku's PORT, with Socket.IO attached to the same HTTP server. FLOPPY_APP is no longer read; existing web/api values have no effect. Local npm run dev still runs the two development servers.
 
-Use **Cedar, heroku-24, and the classic heroku/nodejs buildpack**. Node is pinned to 24.x. This setup keeps your existing Supabase database and does not provision add-ons.
+Use the classic heroku/nodejs buildpack (Cedar). Keep the existing floppy-dev app and its custom domain; a second app is unnecessary. The current package.json pins Node 24.x.
 
-## 1. Create the apps
+## 1. Configure the existing app before deploying
 
-Install the Heroku CLI. From the repository root, replace these names with globally unique app names:
+Open Settings > Reveal Config Vars. All frontend and API settings belong on this same app. Local .env files are excluded from the slug.
 
-```sh
-heroku login
-heroku create YOUR-API-APP --generation cedar --stack heroku-24 --buildpack heroku/nodejs --remote heroku-api
-heroku create YOUR-WEB-APP --generation cedar --stack heroku-24 --buildpack heroku/nodejs --remote heroku-web
-heroku apps:info --app YOUR-API-APP
-heroku apps:info --app YOUR-WEB-APP
-```
-
-Copy the actual Web URLs shown by Heroku, including any generated suffix. Use HTTPS origins without trailing slashes below. You can use custom domains once configured.
-
-## 2. Set config vars before deploying
-
-In each app's Heroku dashboard, open **Settings > Reveal Config Vars**. Enter credentials there; never commit them. Both apps must use the same Clerk instance.
-
-### API app
-
-| Variable | Value |
+| Variable | Production value |
 | --- | --- |
-| FLOPPY_APP | api |
 | NODE_ENV | production |
-| WEB_ORIGIN | Web app HTTPS origin |
-| API_PUBLIC_URL | API app HTTPS origin |
-| DATABASE_URL | Supabase Postgres connection string |
-| DATABASE_MIGRATION_URL | Supabase direct or session-pooler URL on port 5432 |
+| NEXT_PUBLIC_API_URL | /api |
+| NEXT_PUBLIC_SITE_URL | https://floppy.builtbytharinda.tech |
+| WEB_ORIGIN | https://floppy.builtbytharinda.tech |
+| API_PUBLIC_URL | https://floppy.builtbytharinda.tech |
+| NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY | Production pk_live_ key |
+| CLERK_PUBLISHABLE_KEY | Same production pk_live_ key |
+| CLERK_SECRET_KEY | Production sk_live_ key |
+| CLERK_WEBHOOK_SIGNING_SECRET | Production webhook signing secret |
+| DATABASE_URL | Supabase PostgreSQL connection string |
+| DATABASE_MIGRATION_URL | Direct or session-pooler connection on port 5432 |
 | DATABASE_SSL | true |
-| CLERK_SECRET_KEY | Clerk secret key |
-| CLERK_PUBLISHABLE_KEY | Clerk publishable key |
-| CLERK_WEBHOOK_SIGNING_SECRET | Signing secret for the deployed webhook endpoint |
 | REMINDERS_ENABLED | true |
-
-Runtime can use the transaction pooler on port 6543. Migrations need a direct or session connection on port 5432. Use the session pooler if the direct host is unreachable from Heroku. Without DATABASE_MIGRATION_URL, migrations use DATABASE_URL.
-
-For notifications, set NOVU_SECRET_KEY and NOVU_APPLICATION_IDENTIFIER, plus NOVU_API_URL for the EU region. See apps/api/.env.example for other optional settings. Leave unused optional variables unset, especially URLs.
-
-### Web app
-
-| Variable | Value |
-| --- | --- |
-| FLOPPY_APP | web (default if omitted) |
-| NODE_ENV | production |
-| NEXT_PUBLIC_API_URL | API app HTTPS origin |
-| NEXT_PUBLIC_SITE_URL | Web app HTTPS origin |
-| NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY | Clerk publishable key |
-| CLERK_SECRET_KEY | Clerk secret key |
 | NEXT_PUBLIC_CLERK_SIGN_IN_URL | /sign-in |
 | NEXT_PUBLIC_CLERK_SIGN_UP_URL | /sign-up |
 
-For Novu Inbox, optionally set NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER. For EU Novu, set NEXT_PUBLIC_NOVU_BACKEND_URL to https://eu.api.novu.co and NEXT_PUBLIC_NOVU_SOCKET_URL to wss://eu.socket.novu.co.
+Replace an existing NEXT_PUBLIC_API_URL=http://localhost:4000 with /api. The production fallback is also /api, but an explicitly set old URL takes precedence. Next.js embeds NEXT_PUBLIC_* values during build: rebuild after changing them. Set NEXT_PUBLIC_SITE_URL so the CSP explicitly permits the site's secure WebSocket origin.
 
-**Set all NEXT_PUBLIC_* values before building.** Next.js embeds them in browser bundles. Changes require a rebuild/deploy, not just a restart. The API URL is also embedded in the web Content Security Policy.
+Runtime database access can use Supabase's transaction pooler on port 6543. Migrations require a direct/session connection (5432); use the session pooler when the direct host is unreachable. DATABASE_MIGRATION_URL falls back to DATABASE_URL. Never commit database URLs or keys.
 
-Heroku supplies PORT; do not set it yourself. Keep the buildpack's default installation of dev dependencies during builds. They are pruned afterward; production startup and migrations use compiled JavaScript.
+Do not set PORT: Heroku supplies it. Leave dev dependencies installed during the build; Heroku prunes them afterward. Optional Novu settings are NOVU_SECRET_KEY, NOVU_APPLICATION_IDENTIFIER and region-specific NOVU_API_URL; see the API/web .env.example files for the remaining optional integrations.
 
-## 3. Configure integrations
+## 2. Deploy the updated code
 
-- Configure Clerk for your deployed web domain and production instance using its dashboard deployment checklist.
-- Point the Clerk webhook to `https://YOUR-ACTUAL-API-HOST/webhooks/clerk`, select the events listed in the README, and put the signing secret on the API app.
-- If using Novu, publish workflows after the API is live. Its bridge URL is `https://YOUR-ACTUAL-API-HOST/api/novu`. See notification setup in the README. The compiled sync command is `heroku run "node apps/api/dist/scripts/novu-sync.js" --app YOUR-API-APP`.
+Commit and push these changes to the connected main branch, or use Deploy > Deploy Branch after the updated code is on GitHub. Old deployed code still uses FLOPPY_APP; only this new deployment removes that dependency. There is no need to change FLOPPY_APP while the old code is deployed. Remove the obsolete variable after the new release succeeds.
 
+The build must show BOTH @floppy/api build and @floppy/web build. The Procfile then runs database migrations during release and starts the combined server. A failed migration blocks the new release; inspect its release log instead of skipping migrations.
 
-### Clerk production on floppy.builtbytharinda.tech
+The same web dyno hosts the frontend, API, reminders, and realtime connections. Start with one always-on web dyno and monitor memory usage: frontend and backend share its memory and CPU. Multiple dynos require shared realtime/rate-limit state and a single reminder scheduler.
 
-The production website origin is `https://floppy.builtbytharinda.tech`.
+## 3. Routes and integrations
 
-1. Create or select the production instance in Clerk. Enter `floppy.builtbytharinda.tech` as the application domain and complete its deployment checklist.
-2. Copy the exact DNS records shown in Clerk into Cloudflare. Keep Clerk verification CNAMEs DNS-only (not proxied); their targets are instance-specific. Keep the existing website CNAME pointing to Heroku.
-3. Set the web app's `NEXT_PUBLIC_SITE_URL=https://floppy.builtbytharinda.tech`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...`, and `CLERK_SECRET_KEY=sk_live_...`.
-4. On the API app, set `WEB_ORIGIN=https://floppy.builtbytharinda.tech`, `CLERK_PUBLISHABLE_KEY` to the same production publishable key, and `CLERK_SECRET_KEY` to the same production secret key.
-5. Set the web app's `NEXT_PUBLIC_API_URL` to the public HTTPS API origin, not localhost or the frontend URL. Keep `API_PUBLIC_URL` on the API app aligned with its public origin.
-6. In the production Clerk instance, configure the required authentication providers and Organizations, and create the webhook endpoint at the API's `/webhooks/clerk`. Set its new signing secret as `CLERK_WEBHOOK_SIGNING_SECRET` on the API app.
-7. Complete Clerk DNS/certificate setup, then rebuild and redeploy the frontend with the production keys. A restart alone does not replace values embedded in the browser bundle.
+| Public path | Destination |
+| --- | --- |
+| /, /app, /staff, /sign-in, /_next/... | Next.js |
+| /api/me, /api/organizations/... , /api/staff/... | Express (the /api prefix is removed) |
+| /health or /api/health | HTTP health check |
+| /webhooks/clerk | Clerk webhook (raw signed body preserved) |
+| /api/novu | Existing Novu bridge |
+| /socket.io/ | Socket.IO on the same server |
 
-The Next.js CSP derives the exact Clerk Frontend API hostname from `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and allows Clerk's required protection hosts. No separate Clerk hostname variable is needed. The Frontend API hostname is determined by the production instance; do not guess it from the website hostname.
+Configure Clerk's production webhook as https://floppy.builtbytharinda.tech/webhooks/clerk. Keep its DNS records and OAuth callback at the Clerk domain; they do not move to /api. Novu's bridge remains https://floppy.builtbytharinda.tech/api/novu.
 
-Development users and organizations do not automatically appear in the production instance. Floppy database rows reference Clerk IDs, so use a deliberate data migration if development data must be retained.
+API requests still use Bearer tokens through useApi. Frontend pages and API routes retain separate authentication and security headers. Server-side requests using the relative /api configuration reach the same server over loopback; realtime uses the website origin, not a Socket.IO /api namespace.
 
-Reference: [Clerk production deployment](https://clerk.com/docs/guides/development/deployment/production), [Clerk CSP requirements](https://clerk.com/docs/guides/secure/best-practices/csp-headers).
+## 4. Verify
 
-## 4. Commit and deploy
+1. Open https://floppy.builtbytharinda.tech/api/health and expect {"ok":true}. This checks HTTP availability, not database/integration connectivity.
+2. Open the website, sign in with Google, and load an organization.
+3. Verify an authenticated chat connection, Clerk webhook delivery, and Novu bridge if enabled.
+4. Check Heroku runtime/release logs if any step fails.
 
-Commit the configuration changes, then push the same commit to both apps, API first:
-
-```sh
-git push heroku-api HEAD:main
-heroku ps:scale web=1 --app YOUR-API-APP
-git push heroku-web HEAD:main
-heroku ps:scale web=1 --app YOUR-WEB-APP
-heroku open --app YOUR-WEB-APP
-```
-
-Choose suitable dyno plans in the dashboard. Keep the API on **one always-on dyno** initially: reminders, realtime rooms, and rate limits live in the API process. Multiple API dynos require shared realtime/rate-limit state and a single reminder scheduler. Sleeping dynos cannot reliably send scheduled reminders.
-
-The root Procfile runs:
-
-- `web: npm start`: selects web or API using FLOPPY_APP; both honor Heroku's PORT.
-- `release: npm run heroku:release`: runs committed SQL migrations on the API only. Failed migrations block the new release. Web releases do not access the database.
-
-The heroku-postbuild hook builds only the selected app plus the shared package. Always deploy the repository root so npm can resolve the workspaces. Changing FLOPPY_APP requires rebuilding for that target.
-
-## 5. Verify
-
-```sh
-heroku releases --app YOUR-API-APP
-heroku logs --tail --app YOUR-API-APP
-heroku logs --tail --app YOUR-WEB-APP
-```
-
-Check `https://YOUR-ACTUAL-API-HOST/health` for `{"ok":true}`, then open the frontend, sign in, and test an organization page and chat. The health endpoint checks HTTP availability, not database or integration connectivity.
-
-- **Clerk build error:** set the web publishable key before building.
-- **Browser calls localhost:** correct NEXT_PUBLIC_API_URL and rebuild the frontend.
-- **CORS/session errors:** WEB_ORIGIN must match the exact web origin; both apps must use the same Clerk instance.
-- **Migration failure:** inspect release logs and verify the session connection and SSL setting.
-- **H10/R10:** inspect startup logs, confirm FLOPPY_APP, and remove any manually configured PORT.
-
-References: [Heroku Node deployment](https://devcenter.heroku.com/articles/deploying-nodejs), [classic build lifecycle](https://devcenter.heroku.com/articles/nodejs-classic-buildpack-builds), [release phase](https://devcenter.heroku.com/articles/release-phase), [Next.js CLI](https://nextjs.org/docs/15/app/api-reference/cli/next).
+References: [Heroku release phase](https://devcenter.heroku.com/articles/release-phase), [Next.js custom server](https://nextjs.org/docs/app/guides/custom-server), [Heroku port binding](https://devcenter.heroku.com/articles/dyno-startup-behavior#port-binding-of-web-dynos).
