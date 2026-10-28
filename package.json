@@ -9,7 +9,7 @@
     "apps/*"
   ],
   "engines": {
-    "node": ">=22.12.0"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "node scripts/dev.mjs",
@@ -25,7 +25,10 @@
     "staff:create": "npm run staff:create -w @floppy/api --",
     "superadmin:create": "npm run superadmin:create -w @floppy/api --",
     "notify:test": "npm run notify:test -w @floppy/api --",
-    "build:shared": "npm run build -w @floppy/shared"
+    "build:shared": "npm run build -w @floppy/shared",
+    "start": "node scripts/heroku.mjs start",
+    "heroku-postbuild": "node scripts/heroku.mjs build",
+    "heroku:release": "node scripts/heroku.mjs release"
   },
   "devDependencies": {
     "typescript": "5.9.3"

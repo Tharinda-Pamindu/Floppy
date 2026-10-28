@@ -1,0 +1,6 @@
+/.github
+/.claude
+/docs
+/apps/api/.env*
+/apps/web/.env*
+/.env*
