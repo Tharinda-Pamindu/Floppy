@@ -1,6 +1,5 @@
 /** Applies the SQL migrations in ./drizzle to DATABASE_URL (your Supabase database). */
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
@@ -13,10 +12,12 @@ if (!url) {
 // Migrations need a session connection: use Supabase's direct or session-pooler URL (port 5432), not 6543.
 const ssl = (process.env.DATABASE_SSL ?? "true") === "true";
 const client = postgres(process.env.DATABASE_MIGRATION_URL || url, { max: 1, ssl: ssl ? "require" : false });
-const here = path.dirname(fileURLToPath(import.meta.url));
+// npm workspace scripts and the Heroku launcher run from apps/api.
+// Resolve from the workspace for both TypeScript and compiled JavaScript.
+const migrationsFolder = path.resolve("drizzle");
 
 try {
-  await migrate(drizzle(client), { migrationsFolder: path.join(here, "..", "drizzle") });
+  await migrate(drizzle(client), { migrationsFolder });
   console.log("✔ Migrations applied.");
 } catch (err) {
   console.error("✖ Migration failed:", err instanceof Error ? err.message : err);

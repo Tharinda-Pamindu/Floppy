@@ -5,10 +5,12 @@
 **Less strain. More brain.** Weekly planning for software teams. Every engineer commits to one thing they'll ship this week, and a lead approves the plan before the week starts. By Friday the team knows what actually shipped.
 
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
-![Node.js 22.12+](https://img.shields.io/badge/node-22.12%2B-339933.svg)
+![Node.js 24](https://img.shields.io/badge/node-24-339933.svg)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 ![Floppy's home page: "Less strain. More brain." above a group of teammates celebrating a completed week](docs/images/home.png)
+
+Deploy to Heroku: follow [the deployment guide](docs/HEROKU.md) for frontend/API setup, config vars, and database migrations.
 
 ## Features
 
@@ -49,7 +51,7 @@ Floppy/
 
 ## 1. Requirements
 
-- Node.js **22.12+** (24 recommended; `.nvmrc` says 24) and npm 10+.
+- Node.js **24.x** (`.nvmrc` says 24) and npm 10+.
 - Accounts (all have free tiers):
   - [Supabase](https://supabase.com)
   - [Clerk](https://clerk.com)

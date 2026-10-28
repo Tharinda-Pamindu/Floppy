@@ -7,7 +7,7 @@
     "predev": "tsc -p ../../packages/shared/tsconfig.json",
     "dev": "next dev --port 3000",
     "build": "next build",
-    "start": "next start --port 3000",
+    "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "prebuild": "tsc -p ../../packages/shared/tsconfig.json"

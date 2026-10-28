@@ -1,5 +1,3 @@
-import type { NextConfig } from "next";
-
 const api = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const apiWs = api.replace(/^http/, "ws");
 const isDev = process.env.NODE_ENV !== "production";
@@ -23,7 +21,8 @@ const csp = [
   "object-src 'none'",
 ].join("; ");
 
-const nextConfig: NextConfig = {
+/** @type {import("next").NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   transpilePackages: ["@floppy/shared"],
