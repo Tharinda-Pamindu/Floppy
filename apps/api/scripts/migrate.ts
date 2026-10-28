@@ -1,27 +1,30 @@
-/** Applies the SQL migrations in ./drizzle to DATABASE_URL (your Supabase database). */
+/** Applies committed SQL migrations using the migration connection when set. */
 import path from "node:path";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
+import { migrationFailureDetails } from "../src/db/migration-error.js";
 
-const url = process.env.DATABASE_URL;
+const source = process.env.DATABASE_MIGRATION_URL ? "DATABASE_MIGRATION_URL" : "DATABASE_URL";
+const url = process.env[source];
 if (!url) {
-  console.error("DATABASE_URL is not set. Copy apps/api/.env.example to apps/api/.env and fill it in.");
+  console.error("Set DATABASE_MIGRATION_URL or DATABASE_URL in the environment before running migrations.");
   process.exit(1);
 }
-// Migrations need a session connection: use Supabase's direct or session-pooler URL (port 5432), not 6543.
+// Migrations use a direct or session-pooler connection (5432), not transaction mode (6543).
 const ssl = (process.env.DATABASE_SSL ?? "true") === "true";
-const client = postgres(process.env.DATABASE_MIGRATION_URL || url, { max: 1, ssl: ssl ? "require" : false });
-// npm workspace scripts and the Heroku launcher run from apps/api.
-// Resolve from the workspace for both TypeScript and compiled JavaScript.
+// Both the npm workspace command and Heroku release run from apps/api.
 const migrationsFolder = path.resolve("drizzle");
-
+let client: ReturnType<typeof postgres> | undefined;
 try {
+  console.log(`Migration connection: ${source}; SSL ${ssl ? "required" : "disabled"}.`);
+  client = postgres(url, { max: 1, ssl: ssl ? "require" : false, connect_timeout: 15 });
   await migrate(drizzle(client), { migrationsFolder });
-  console.log("✔ Migrations applied.");
+  console.log("Migrations applied.");
 } catch (err) {
-  console.error("✖ Migration failed:", err instanceof Error ? err.message : err);
+  console.error("Migration failed:");
+  for (const detail of migrationFailureDetails(err)) console.error(`  ${detail}`);
   process.exitCode = 1;
 } finally {
-  await client.end();
+  await client?.end({ timeout: 5 });
 }
